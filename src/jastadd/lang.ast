@@ -1,1 +1,5 @@
-Program ::= <ID>;
+Program ::= Func*;
+
+Func ::= FunID;
+
+FunID ::= <ID>;

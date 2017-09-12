@@ -9,10 +9,18 @@
 	}
 :};
 
-%terminals ID;
+%terminals ID, NUMERAL, LBRACE, RBRACE, LPARENTHESES, RPARENTHESES, INT;
 
 %typeof program = "Program";
+%typeof func_list = "List";
+%typeof func_id = "FunID";
+%typeof func = "Func";
 
 %goal program;
 
-program = ID.id {: return new Program(id); :} ;
+program = func_list.a {: return new Program(a); :} ;
+func_list =
+    func.a {: return new List().add(a); :}
+    |   func_list.a func.b {: return a.add(b); :} ;
+func = INT func_id.a LPARENTHESES RPARENTHESES LBRACE RBRACE{: return new Func(a); :} ;
+func_id = ID.id {: return new FunID(id); :} ;
