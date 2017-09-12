@@ -44,8 +44,8 @@ Numeral = [0-9]
 "int"         { return sym(Terminals.INT); }
 "="           { return sym(Terminals.EQ); }
 ";"           { return sym(Terminals.SEMI); }
-//"+"           { return sym(Terminals.ADD); }
-//"*"           { return sym(Terminals.MUL); }
+"+"           { return sym(Terminals.ADD); }
+"*"           { return sym(Terminals.MUL); }
 {ID}          { return sym(Terminals.ID); }
 {Numeral}     { return sym(Terminals.NUMERAL); }
 <<EOF>>       { return sym(Terminals.EOF); }

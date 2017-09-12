@@ -9,7 +9,10 @@ Assign : Stmt ::= IdUse Expr;
 
 abstract Expr;
 Numeral : Expr ::= <NUMERAL>;
+IdUse : Expr ::= <ID>;
+Add : Expr ::= Left:Expr Right:Expr;
+Mul : Expr ::= Left:Expr Right:Expr;
 
 IdDecl ::= <ID>;
-IdUse : Expr ::= <ID>;
+
 FunID ::= <ID>;

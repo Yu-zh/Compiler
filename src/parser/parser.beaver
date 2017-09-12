@@ -9,7 +9,8 @@
 	}
 :};
 
-%terminals ID, NUMERAL, LBRACE, RBRACE, LPARENTHESES, RPARENTHESES, INT, EQ, SEMI;
+%terminals ID, NUMERAL, LBRACE, RBRACE, LPARENTHESES, RPARENTHESES, INT, EQ, SEMI,
+    ADD, MUL;
 
 %typeof program = "Program";
 %typeof func_list = "List";
@@ -26,6 +27,10 @@
 %typeof stmt_list = "List";
 %typeof decl_opt = "Opt";
 %typeof number = "Numeral";
+%typeof arithmetic = "Expr";
+%typeof add = "Expr";
+%typeof mul = "Expr";
+%typeof factor = "Expr";
 
 %goal program;
 
@@ -64,6 +69,20 @@ decl_opt =
     |   EQ expr.a {: return new Opt(a); :};
 
 expr =
+    arithmetic;
+
+arithmetic =
+    add;
+
+add =
+    add.a ADD mul.b {: return new Add(a,b); :}
+    |   mul;
+
+mul =
+    mul.a MUL factor.b {: return new Mul(a,b); :}
+    |   factor;
+
+factor =
     id_use
     |   number;
 
