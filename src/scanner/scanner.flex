@@ -42,8 +42,12 @@ Numeral = [0-9]
 "("           { return sym(Terminals.LPARENTHESES); }
 ")"           { return sym(Terminals.RPARENTHESES); }
 "int"         { return sym(Terminals.INT); }
+"="           { return sym(Terminals.EQ); }
+";"           { return sym(Terminals.SEMI); }
+//"+"           { return sym(Terminals.ADD); }
+//"*"           { return sym(Terminals.MUL); }
 {ID}          { return sym(Terminals.ID); }
-//{Numeral}     { return sym(Terminals.NUMERAL); }
+{Numeral}     { return sym(Terminals.NUMERAL); }
 <<EOF>>       { return sym(Terminals.EOF); }
 
 /* error fallback */

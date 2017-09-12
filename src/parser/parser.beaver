@@ -9,18 +9,67 @@
 	}
 :};
 
-%terminals ID, NUMERAL, LBRACE, RBRACE, LPARENTHESES, RPARENTHESES, INT;
+%terminals ID, NUMERAL, LBRACE, RBRACE, LPARENTHESES, RPARENTHESES, INT, EQ, SEMI;
 
 %typeof program = "Program";
 %typeof func_list = "List";
 %typeof func_id = "FunID";
 %typeof func = "Func";
+%typeof assign = "Assign";
+%typeof var_decl = "VarDecl";
+%typeof id_use = "IdUse";
+%typeof id_decl = "IdDecl";
+%typeof expr = "Expr";
+%typeof stmt = "Stmt";
+%typeof stmts = "Stmts";
+%typeof stmt_opt = "Opt";
+%typeof stmt_list = "List";
+%typeof decl_opt = "Opt";
+%typeof number = "Numeral";
 
 %goal program;
 
 program = func_list.a {: return new Program(a); :} ;
+
 func_list =
     func.a {: return new List().add(a); :}
     |   func_list.a func.b {: return a.add(b); :} ;
-func = INT func_id.a LPARENTHESES RPARENTHESES LBRACE RBRACE{: return new Func(a); :} ;
+
+func =
+    INT func_id.a LPARENTHESES RPARENTHESES LBRACE stmt_opt.c RBRACE{: return new Func(a,c); :} ;
+
+stmt_opt =
+    /* epsilon */ {: return new Opt(); :}
+    |   stmts.a {: return new Opt(a); :};
+
+stmts =
+    stmt_list.a {: return new Stmts(a); :};
+
+stmt_list =
+    stmt.a {: return new List().add(a); :}
+    |   stmt_list.a stmt.b {: return a.add(b); :};
+
+stmt =
+    assign
+    |   var_decl;
+
+assign =
+    id_use.a EQ expr.b SEMI {: return new Assign(a,b); :};
+
+var_decl =
+    INT id_decl.a decl_opt.b SEMI {: return new VarDecl(a,b); :};
+
+decl_opt =
+    /* epsilon */ {: return new Opt(); :}
+    |   EQ expr.a {: return new Opt(a); :};
+
+expr =
+    id_use
+    |   number;
+
+number =
+    NUMERAL.num {: return new Numeral(num); :};
+
 func_id = ID.id {: return new FunID(id); :} ;
+id_use = ID.id {: return new IdUse(id); :} ;
+id_decl = ID.id {: return new IdDecl(id); :};

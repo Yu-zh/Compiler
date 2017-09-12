@@ -1,5 +1,15 @@
 Program ::= Func*;
 
-Func ::= FunID;
+Func ::= FunID [Stmts];
+Stmts ::= Stmt*;
 
+abstract Stmt;
+VarDecl : Stmt ::= IdDecl [Expr];
+Assign : Stmt ::= IdUse Expr;
+
+abstract Expr;
+Numeral : Expr ::= <NUMERAL>;
+
+IdDecl ::= <ID>;
+IdUse : Expr ::= <ID>;
 FunID ::= <ID>;
