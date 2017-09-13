@@ -62,6 +62,7 @@ Numeral = [0-9]
 "while"       { return sym(Terminals.WHILE); }
 "read"        { return sym(Terminals.READ); }
 "print"       { return sym(Terminals.PRINT); }
+"//"          { return sym(Terminals.COMMENT); }
 {ID}          { return sym(Terminals.ID); }
 {Numeral}     { return sym(Terminals.NUMERAL); }
 <<EOF>>       { return sym(Terminals.EOF); }

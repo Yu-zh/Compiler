@@ -150,7 +150,8 @@ mul =
 
 factor =
     id_use
-    |   number;
+    |   number
+    |   LPARENTHESES expr.a RPARENTHESES {: return a; :};
 
 number =
     NUMERAL.num {: return new Numeral(num); :};
