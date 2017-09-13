@@ -9,7 +9,7 @@
 	}
 :};
 
-%terminals ID, NUMERAL,  INT, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE,
+%terminals ID, NUMERAL,  INT, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE, COMMENT,
     ADD, MUL, DIV, MIN, MOD, LE, LT, GE, GT, EQ, NEQ,
     LBRACE, RBRACE, LPARENTHESES, RPARENTHESES,
     READ, PRINT;
@@ -48,14 +48,28 @@
 %typeof pass_list = "List";
 %typeof print = "Stmt";
 %typeof read = "Expr";
+%typeof comment = "Comment";
+%typeof comment_list = "List";
+%typeof comments_opt = "Opt";
 
 %goal program;
 
 program = func_list.a {: return new Program(a); :} ;
 
+comment_list =
+    comment
+    |   comment_list comment;
+
+comments_opt =
+    /* epsilon */
+    |   comment_list;
+
+comment =
+    COMMENT;
+
 func_list =
     func.a {: return new List().add(a); :}
-    |   func_list.a func.b {: return a.add(b); :} ;
+    |   func_list.a comments_opt func.b {: return a.add(b); :} ;
 
 func =
     INT func_id.a LPARENTHESES paras_opt.b RPARENTHESES LBRACE stmt_opt.c RBRACE{: return new Func(a,b,c); :} ;
@@ -84,7 +98,7 @@ stmts =
 
 stmt_list =
     stmt.a {: return new List().add(a); :}
-    |   stmt_list.a stmt.b {: return a.add(b); :};
+    |   stmt_list.a comments_opt stmt.b {: return a.add(b); :};
 
 stmt =
     assign
@@ -120,10 +134,10 @@ decl_opt =
 print =
     PRINT LPARENTHESES expr.a RPARENTHESES SEMI {: return new Print(a); :};
 
+
 expr =
     arithmetic
     |   comparison
-    |   call
     |   read;
 
 comparison =
@@ -151,7 +165,8 @@ mul =
 factor =
     id_use
     |   number
-    |   LPARENTHESES expr.a RPARENTHESES {: return a; :};
+    |   LPARENTHESES expr.a RPARENTHESES {: return a; :}
+    |   call;
 
 number =
     NUMERAL.num {: return new Numeral(num); :};
@@ -174,3 +189,4 @@ func_id = ID.id {: return new FunID(id); :} ;
 id_use = ID.id {: return new IdUse(id); :} ;
 id_decl = ID.id {: return new IdDecl(id); :};
 id_para = ID.id {: return new IdPara(id); :};
+

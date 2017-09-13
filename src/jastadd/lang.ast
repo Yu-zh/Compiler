@@ -40,3 +40,5 @@ IdDecl ::= <ID>;
 FunID ::= <ID>;
 
 IdPara ::= <ID>;
+
+Comment : Stmt ::= <COMMENT>;

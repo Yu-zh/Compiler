@@ -28,8 +28,9 @@ import lang.ast.LangParser.SyntaxError;
 
 // macros
 WhiteSpace = [ ] | \t | \f | \n | \r
-ID = [a-zA-Z]+
-Numeral = [0-9]
+ID = [a-zA-Z][a-zA-Z0-9_]*
+Numeral = [0-9]+
+Comment = \/\/.*\n
 
 %%
 
@@ -62,7 +63,7 @@ Numeral = [0-9]
 "while"       { return sym(Terminals.WHILE); }
 "read"        { return sym(Terminals.READ); }
 "print"       { return sym(Terminals.PRINT); }
-"//"          { return sym(Terminals.COMMENT); }
+{Comment}     { return sym(Terminals.COMMENT); }
 {ID}          { return sym(Terminals.ID); }
 {Numeral}     { return sym(Terminals.NUMERAL); }
 <<EOF>>       { return sym(Terminals.EOF); }
