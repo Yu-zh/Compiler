@@ -9,6 +9,9 @@ abstract Stmt;
 VarDecl : Stmt ::= IdDecl [Expr];
 Assign : Stmt ::= IdUse Expr;
 Return : Stmt ::= Expr;
+IfStmt : Stmt ::= Cond:Expr Body:Stmt* [Else:Stmts];
+WhileStmt : Stmt ::= Cond:Expr Body:Stmt*;
+Print : Stmt ::= Output:Expr;
 
 abstract Expr;
 Numeral : Expr ::= <NUMERAL>;
@@ -26,6 +29,11 @@ Lt : Expr ::= Left:Expr Right:Expr;
 Gt : Expr ::= Left:Expr Right:Expr;
 Eq : Expr ::= Left:Expr Right:Expr;
 Neq : Expr ::= Left:Expr Right:Expr;
+
+Call : Expr ::= Fun:FunID [PassParas];
+PassParas ::= Expr*;
+
+Read : Expr ::= [PassParas];
 
 IdDecl ::= <ID>;
 

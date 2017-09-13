@@ -9,8 +9,10 @@
 	}
 :};
 
-%terminals ID, NUMERAL, LBRACE, RBRACE, LPARENTHESES, RPARENTHESES, INT, ASSIGN, SEMI, RETURN, COMMA,
-    ADD, MUL, DIV, MIN, MOD, LE, LT, GE, GT, EQ, NEQ;
+%terminals ID, NUMERAL,  INT, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE,
+    ADD, MUL, DIV, MIN, MOD, LE, LT, GE, GT, EQ, NEQ,
+    LBRACE, RBRACE, LPARENTHESES, RPARENTHESES,
+    READ, PRINT;
 
 %typeof program = "Program";
 %typeof func_list = "List";
@@ -38,6 +40,14 @@
 %typeof paras_list = "List";
 %typeof paras = "Paras";
 %typeof para = "Para";
+%typeof if_stmt = "IfStmt";
+%typeof while_stmt = "WhileStmt";
+%typeof else_opt = "Opt";
+%typeof call = "Expr";
+%typeof pass_opt = "Opt";
+%typeof pass_list = "List";
+%typeof print = "Stmt";
+%typeof read = "Expr";
 
 %goal program;
 
@@ -52,17 +62,17 @@ func =
 
 paras_opt =
     /* epsilon */ {: return new Opt(); :}
-    |   paras.a {: System.out.println("para_opt");return new Opt(a); :};
+    |   paras.a {: return new Opt(a); :};
 
 paras =
     paras_list.a {: return new Paras(a); :};
 
 paras_list =
-    para.a {: System.out.println("paralsit");return new List().add(a); :}
+    para.a {: return new List().add(a); :}
     |   paras_list.a COMMA para.b {: return a.add(b); :};
 
 para =
-    INT id_para.a {: System.out.println("para");return new Para(a); :};
+    INT id_para.a {: return new Para(a); :};
 
 
 stmt_opt =
@@ -79,7 +89,10 @@ stmt_list =
 stmt =
     assign
     |   var_decl
-    |   ret;
+    |   ret
+    |   if_stmt
+    |   while_stmt
+    |   print;
 
 assign =
     id_use.a ASSIGN expr.b SEMI {: return new Assign(a,b); :};
@@ -90,13 +103,28 @@ var_decl =
 ret =
     RETURN expr.a SEMI {: return new Return(a); :};
 
+if_stmt =
+    IF LPARENTHESES expr.a RPARENTHESES LBRACE stmt_list.b RBRACE else_opt.c {: return new IfStmt(a,b,c); :};
+
+else_opt =
+    /* epsilon */ {: return new Opt(); :}
+    |   ELSE LBRACE stmts.a RBRACE {: return new Opt(a); :};
+
+while_stmt =
+    WHILE LPARENTHESES expr.a RPARENTHESES LBRACE stmt_list.b RBRACE {: return new WhileStmt(a,b); :};
+
 decl_opt =
     /* epsilon */ {: return new Opt(); :}
     |   ASSIGN expr.a {: return new Opt(a); :};
 
+print =
+    PRINT LPARENTHESES expr.a RPARENTHESES SEMI {: return new Print(a); :};
+
 expr =
     arithmetic
-    |   comparison;
+    |   comparison
+    |   call
+    |   read;
 
 comparison =
     arithmetic.a EQ arithmetic.b {: return new Eq(a,b); :}
@@ -126,6 +154,20 @@ factor =
 
 number =
     NUMERAL.num {: return new Numeral(num); :};
+
+call =
+    func_id.a LPARENTHESES pass_opt.b RPARENTHESES {: return new Call(a,b); :};
+
+pass_opt =
+    /* epsilon */ {: return new Opt(); :}
+    |   pass_list.a {: return new Opt(a); :};
+
+pass_list =
+    expr.a {: return new List().add(a); :}
+    |   pass_list.a COMMA expr.b {: return a.add(b); :};
+
+read =
+    READ LPARENTHESES pass_opt.a RPARENTHESES {: return new Read(a); :};
 
 func_id = ID.id {: return new FunID(id); :} ;
 id_use = ID.id {: return new IdUse(id); :} ;

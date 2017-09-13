@@ -1,0 +1,9 @@
+int main(){
+    int a;
+    a = read();
+    if(a<5){
+        print(a);
+    }else {
+        print(a % 5);
+    }
+}

@@ -57,6 +57,11 @@ Numeral = [0-9]
 "!="          { return sym(Terminals.NEQ); }
 "return"      { return sym(Terminals.RETURN); }
 ","           { return sym(Terminals.COMMA); }
+"if"          { return sym(Terminals.IF); }
+"else"        { return sym(Terminals.ELSE); }
+"while"       { return sym(Terminals.WHILE); }
+"read"        { return sym(Terminals.READ); }
+"print"       { return sym(Terminals.PRINT); }
 {ID}          { return sym(Terminals.ID); }
 {Numeral}     { return sym(Terminals.NUMERAL); }
 <<EOF>>       { return sym(Terminals.EOF); }
