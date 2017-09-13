@@ -9,8 +9,8 @@
 	}
 :};
 
-%terminals ID, NUMERAL, LBRACE, RBRACE, LPARENTHESES, RPARENTHESES, INT, EQ, SEMI,
-    ADD, MUL;
+%terminals ID, NUMERAL, LBRACE, RBRACE, LPARENTHESES, RPARENTHESES, INT, ASSIGN, SEMI, RETURN, COMMA,
+    ADD, MUL, DIV, MIN, MOD, LE, LT, GE, GT, EQ, NEQ;
 
 %typeof program = "Program";
 %typeof func_list = "List";
@@ -20,6 +20,7 @@
 %typeof var_decl = "VarDecl";
 %typeof id_use = "IdUse";
 %typeof id_decl = "IdDecl";
+%typeof id_para = "IdPara";
 %typeof expr = "Expr";
 %typeof stmt = "Stmt";
 %typeof stmts = "Stmts";
@@ -31,6 +32,12 @@
 %typeof add = "Expr";
 %typeof mul = "Expr";
 %typeof factor = "Expr";
+%typeof comparison = "Expr";
+%typeof ret = "Return";
+%typeof paras_opt = "Opt";
+%typeof paras_list = "List";
+%typeof paras = "Paras";
+%typeof para = "Para";
 
 %goal program;
 
@@ -41,7 +48,22 @@ func_list =
     |   func_list.a func.b {: return a.add(b); :} ;
 
 func =
-    INT func_id.a LPARENTHESES RPARENTHESES LBRACE stmt_opt.c RBRACE{: return new Func(a,c); :} ;
+    INT func_id.a LPARENTHESES paras_opt.b RPARENTHESES LBRACE stmt_opt.c RBRACE{: return new Func(a,b,c); :} ;
+
+paras_opt =
+    /* epsilon */ {: return new Opt(); :}
+    |   paras.a {: System.out.println("para_opt");return new Opt(a); :};
+
+paras =
+    paras_list.a {: return new Paras(a); :};
+
+paras_list =
+    para.a {: System.out.println("paralsit");return new List().add(a); :}
+    |   paras_list.a COMMA para.b {: return a.add(b); :};
+
+para =
+    INT id_para.a {: System.out.println("para");return new Para(a); :};
+
 
 stmt_opt =
     /* epsilon */ {: return new Opt(); :}
@@ -56,30 +78,46 @@ stmt_list =
 
 stmt =
     assign
-    |   var_decl;
+    |   var_decl
+    |   ret;
 
 assign =
-    id_use.a EQ expr.b SEMI {: return new Assign(a,b); :};
+    id_use.a ASSIGN expr.b SEMI {: return new Assign(a,b); :};
 
 var_decl =
     INT id_decl.a decl_opt.b SEMI {: return new VarDecl(a,b); :};
 
+ret =
+    RETURN expr.a SEMI {: return new Return(a); :};
+
 decl_opt =
     /* epsilon */ {: return new Opt(); :}
-    |   EQ expr.a {: return new Opt(a); :};
+    |   ASSIGN expr.a {: return new Opt(a); :};
 
 expr =
-    arithmetic;
+    arithmetic
+    |   comparison;
+
+comparison =
+    arithmetic.a EQ arithmetic.b {: return new Eq(a,b); :}
+    |   arithmetic.a NEQ arithmetic.b {: return new Neq(a,b); :}
+    |   arithmetic.a LE arithmetic.b {: return new Le(a,b); :}
+    |   arithmetic.a LT arithmetic.b {: return new Lt(a,b); :}
+    |   arithmetic.a GE arithmetic.b {: return new Ge(a,b); :}
+    |   arithmetic.a GT arithmetic.b {: return new Gt(a,b); :};
 
 arithmetic =
     add;
 
 add =
     add.a ADD mul.b {: return new Add(a,b); :}
+    |   add.a MIN mul.b {: return new Min(a,b); :}
     |   mul;
 
 mul =
     mul.a MUL factor.b {: return new Mul(a,b); :}
+    |   mul.a DIV factor.b {: return new Div(a,b); :}
+    |   mul.a MOD factor.b {: return new Mod(a,b); :}
     |   factor;
 
 factor =
@@ -92,3 +130,4 @@ number =
 func_id = ID.id {: return new FunID(id); :} ;
 id_use = ID.id {: return new IdUse(id); :} ;
 id_decl = ID.id {: return new IdDecl(id); :};
+id_para = ID.id {: return new IdPara(id); :};

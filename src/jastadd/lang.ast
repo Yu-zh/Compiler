@@ -1,18 +1,34 @@
 Program ::= Func*;
 
-Func ::= FunID [Stmts];
+Func ::= FunID [Paras] [Stmts];
 Stmts ::= Stmt*;
+Paras ::= Para*;
+Para ::= IdPara;
 
 abstract Stmt;
 VarDecl : Stmt ::= IdDecl [Expr];
 Assign : Stmt ::= IdUse Expr;
+Return : Stmt ::= Expr;
 
 abstract Expr;
 Numeral : Expr ::= <NUMERAL>;
 IdUse : Expr ::= <ID>;
+
 Add : Expr ::= Left:Expr Right:Expr;
 Mul : Expr ::= Left:Expr Right:Expr;
+Div : Expr ::= Left:Expr Right:Expr;
+Min : Expr ::= Left:Expr Right:Expr;
+Mod : Expr ::= Left:Expr Right:Expr;
+
+Le : Expr ::= Left:Expr Right:Expr;
+Ge : Expr ::= Left:Expr Right:Expr;
+Lt : Expr ::= Left:Expr Right:Expr;
+Gt : Expr ::= Left:Expr Right:Expr;
+Eq : Expr ::= Left:Expr Right:Expr;
+Neq : Expr ::= Left:Expr Right:Expr;
 
 IdDecl ::= <ID>;
 
 FunID ::= <ID>;
+
+IdPara ::= <ID>;
