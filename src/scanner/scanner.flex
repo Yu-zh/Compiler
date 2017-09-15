@@ -63,7 +63,7 @@ Comment = \/\/.*\n
 "while"       { return sym(Terminals.WHILE); }
 "read"        { return sym(Terminals.READ); }
 "print"       { return sym(Terminals.PRINT); }
-{Comment}     { return sym(Terminals.COMMENT); }
+{Comment}     {}
 {ID}          { return sym(Terminals.ID); }
 {Numeral}     { return sym(Terminals.NUMERAL); }
 <<EOF>>       { return sym(Terminals.EOF); }

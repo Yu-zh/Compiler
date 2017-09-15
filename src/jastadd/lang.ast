@@ -1,15 +1,13 @@
 Program ::= Func*;
 
-Func ::= FunID [Paras] [Stmts];
-Stmts ::= Stmt*;
-Paras ::= Para*;
-Para ::= IdPara;
+Func ::= IdDecl Para* Stmt*;
+Para ::= IdDecl;
 
 abstract Stmt;
 VarDecl : Stmt ::= IdDecl [Expr];
 Assign : Stmt ::= IdUse Expr;
 Return : Stmt ::= Expr;
-IfStmt : Stmt ::= Cond:Expr Body:Stmt* [Else:Stmts];
+IfStmt : Stmt ::= Cond:Expr Body:Stmt* Else:Stmt*;
 WhileStmt : Stmt ::= Cond:Expr Body:Stmt*;
 Print : Stmt ::= Output:Expr;
 
@@ -17,28 +15,24 @@ abstract Expr;
 Numeral : Expr ::= <NUMERAL>;
 IdUse : Expr ::= <ID>;
 
-Add : Expr ::= Left:Expr Right:Expr;
-Mul : Expr ::= Left:Expr Right:Expr;
-Div : Expr ::= Left:Expr Right:Expr;
-Min : Expr ::= Left:Expr Right:Expr;
-Mod : Expr ::= Left:Expr Right:Expr;
+abstract BinaryExpr:Expr ::= Left:Expr Right:Expr;
+Add : BinaryExpr ;
+Mul : BinaryExpr ;
+Div : BinaryExpr ;
+Min : BinaryExpr ;
+Mod : BinaryExpr ;
 
-Le : Expr ::= Left:Expr Right:Expr;
-Ge : Expr ::= Left:Expr Right:Expr;
-Lt : Expr ::= Left:Expr Right:Expr;
-Gt : Expr ::= Left:Expr Right:Expr;
-Eq : Expr ::= Left:Expr Right:Expr;
-Neq : Expr ::= Left:Expr Right:Expr;
+abstract ComparisonExpr:Expr ::= Left:Expr Right:Expr;
+Le : ComparisonExpr ;
+Ge : ComparisonExpr ;
+Lt : ComparisonExpr ;
+Gt : ComparisonExpr ;
+Eq : ComparisonExpr ;
+Neq : ComparisonExpr;
 
-Call : Expr ::= Fun:FunID [PassParas];
+Call : Expr ::= Fun:IdUse [PassParas];
 PassParas ::= Expr*;
 
 Read : Expr ::= [PassParas];
 
 IdDecl ::= <ID>;
-
-FunID ::= <ID>;
-
-IdPara ::= <ID>;
-
-Comment : Stmt ::= <COMMENT>;

@@ -9,24 +9,20 @@
 	}
 :};
 
-%terminals ID, NUMERAL,  INT, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE, COMMENT,
+%terminals ID, NUMERAL,  INT, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE,
     ADD, MUL, DIV, MIN, MOD, LE, LT, GE, GT, EQ, NEQ,
     LBRACE, RBRACE, LPARENTHESES, RPARENTHESES,
     READ, PRINT;
 
 %typeof program = "Program";
 %typeof func_list = "List";
-%typeof func_id = "FunID";
 %typeof func = "Func";
 %typeof assign = "Assign";
 %typeof var_decl = "VarDecl";
 %typeof id_use = "IdUse";
 %typeof id_decl = "IdDecl";
-%typeof id_para = "IdPara";
 %typeof expr = "Expr";
 %typeof stmt = "Stmt";
-%typeof stmts = "Stmts";
-%typeof stmt_opt = "Opt";
 %typeof stmt_list = "List";
 %typeof decl_opt = "Opt";
 %typeof number = "Numeral";
@@ -36,69 +32,42 @@
 %typeof factor = "Expr";
 %typeof comparison = "Expr";
 %typeof ret = "Return";
-%typeof paras_opt = "Opt";
-%typeof paras_list = "List";
-%typeof paras = "Paras";
+%typeof para_list = "List";
 %typeof para = "Para";
 %typeof if_stmt = "IfStmt";
 %typeof while_stmt = "WhileStmt";
-%typeof else_opt = "Opt";
 %typeof call = "Expr";
 %typeof pass_opt = "Opt";
 %typeof pass_list = "List";
 %typeof print = "Stmt";
 %typeof read = "Expr";
-%typeof comment = "Comment";
-%typeof comment_list = "List";
-%typeof comments_opt = "Opt";
 
 %goal program;
 
 program = func_list.a {: return new Program(a); :} ;
 
-comment_list =
-    comment
-    |   comment_list comment;
-
-comments_opt =
-    /* epsilon */
-    |   comment_list;
-
-comment =
-    COMMENT;
 
 func_list =
-    func.a {: return new List().add(a); :}
-    |   func_list.a comments_opt func.b {: return a.add(b); :} ;
+    /* epsilon */ {: return new List(); :}
+    |   func.a {: return new List().add(a); :}
+    |   func_list.a func.b {: return a.add(b); :} ;
 
 func =
-    INT func_id.a LPARENTHESES paras_opt.b RPARENTHESES LBRACE stmt_opt.c RBRACE{: return new Func(a,b,c); :} ;
+    INT id_decl.a LPARENTHESES para_list.b RPARENTHESES LBRACE stmt_list.c RBRACE{: return new Func(a,b,c); :} ;
 
-paras_opt =
-    /* epsilon */ {: return new Opt(); :}
-    |   paras.a {: return new Opt(a); :};
-
-paras =
-    paras_list.a {: return new Paras(a); :};
-
-paras_list =
-    para.a {: return new List().add(a); :}
-    |   paras_list.a COMMA para.b {: return a.add(b); :};
+para_list =
+    /* epsilon */ {: return new List(); :}
+    |   para.a {: return new List().add(a); :}
+    |   para_list.a COMMA para.b {: return a.add(b); :};
 
 para =
-    INT id_para.a {: return new Para(a); :};
+    INT id_decl.a {: return new Para(a); :};
 
-
-stmt_opt =
-    /* epsilon */ {: return new Opt(); :}
-    |   stmts.a {: return new Opt(a); :};
-
-stmts =
-    stmt_list.a {: return new Stmts(a); :};
 
 stmt_list =
-    stmt.a {: return new List().add(a); :}
-    |   stmt_list.a comments_opt stmt.b {: return a.add(b); :};
+    /* epsilon */ {: return new List(); :}
+    |   stmt.a {: return new List().add(a); :}
+    |   stmt_list.a stmt.b {: return a.add(b); :};
 
 stmt =
     assign
@@ -118,11 +87,8 @@ ret =
     RETURN expr.a SEMI {: return new Return(a); :};
 
 if_stmt =
-    IF LPARENTHESES expr.a RPARENTHESES LBRACE stmt_list.b RBRACE else_opt.c {: return new IfStmt(a,b,c); :};
-
-else_opt =
-    /* epsilon */ {: return new Opt(); :}
-    |   ELSE LBRACE stmts.a RBRACE {: return new Opt(a); :};
+    IF LPARENTHESES expr.a RPARENTHESES LBRACE stmt_list.b RBRACE {: return new IfStmt(a,b,new List()); :}
+    |   IF LPARENTHESES expr.a RPARENTHESES LBRACE stmt_list.b RBRACE ELSE LBRACE stmt_list.c RBRACE {: return new IfStmt(a,b,c); :};
 
 while_stmt =
     WHILE LPARENTHESES expr.a RPARENTHESES LBRACE stmt_list.b RBRACE {: return new WhileStmt(a,b); :};
@@ -172,7 +138,7 @@ number =
     NUMERAL.num {: return new Numeral(num); :};
 
 call =
-    func_id.a LPARENTHESES pass_opt.b RPARENTHESES {: return new Call(a,b); :};
+    id_use.a LPARENTHESES pass_opt.b RPARENTHESES {: return new Call(a,b); :};
 
 pass_opt =
     /* epsilon */ {: return new Opt(); :}
@@ -185,8 +151,6 @@ pass_list =
 read =
     READ LPARENTHESES pass_opt.a RPARENTHESES {: return new Read(a); :};
 
-func_id = ID.id {: return new FunID(id); :} ;
 id_use = ID.id {: return new IdUse(id); :} ;
 id_decl = ID.id {: return new IdDecl(id); :};
-id_para = ID.id {: return new IdPara(id); :};
 
