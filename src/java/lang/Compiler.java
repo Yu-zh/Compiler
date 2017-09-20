@@ -9,7 +9,7 @@ import beaver.Parser.Exception;
 import lang.ast.Program;
 import lang.ast.LangParser;
 import lang.ast.LangScanner;
-
+import lang.MSNVisitor;
 /**
  * Dumps the parsed Abstract Syntax Tree of a Calc program.
  */
@@ -35,8 +35,9 @@ public class Compiler {
 			LangScanner scanner = new LangScanner(new FileReader(filename));
 			LangParser parser = new LangParser();
 			Program program = (Program) parser.parse(scanner);
-            DrAST_root_node = program; //Enable debugging with DrAST
-			System.out.println(program.dumpTree());
+            System.out.println(MSNVisitor.result(program));
+//            DrAST_root_node = program; //Enable debugging with DrAST
+//			System.out.println(program.dumpTree());
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found!");
 			System.exit(1);
@@ -45,6 +46,8 @@ public class Compiler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+
 	}
 
 	private static void printUsage() {
