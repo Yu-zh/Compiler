@@ -26,7 +26,6 @@ aspect Visitor {
 		public Object visit(Eq node, Object data);
 		public Object visit(Neq node, Object data);
 		public Object visit(Call node, Object data);
-		public Object visit(PassParas node, Object data);
 		public Object visit(Read node, Object data);
 	}
 
@@ -110,9 +109,6 @@ aspect Visitor {
     }
     public Object Call.accept(Visitor visitor, Object data) {
     	return visitor.visit(this, data);
-    }
-    public Object PassParas.accept(Visitor visitor, Object data) {
-       	return visitor.visit(this, data);
     }
     public Object Read.accept(Visitor visitor, Object data) {
        	return visitor.visit(this, data);

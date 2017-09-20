@@ -50,12 +50,11 @@ Program
         Return
           Call
             IdUse ID="gcd2"
-            Opt
-              List
+            List
+              IdUse ID="b"
+              Mod
+                IdUse ID="a"
                 IdUse ID="b"
-                Mod
-                  IdUse ID="a"
-                  IdUse ID="b"
     Func
       IdDecl ID="main"
       List
@@ -69,41 +68,37 @@ Program
         Assign
           IdUse ID="a"
           Read
-            Opt
+            List
         Assign
           IdUse ID="b"
           Read
-            Opt
+            List
         Print
           Call
             IdUse ID="gcd1"
-            Opt
-              List
-                IdUse ID="a"
-                IdUse ID="b"
+            List
+              IdUse ID="a"
+              IdUse ID="b"
         Print
           Call
             IdUse ID="gcd2"
-            Opt
-              List
-                IdUse ID="a"
-                IdUse ID="b"
+            List
+              IdUse ID="a"
+              IdUse ID="b"
         VarDecl
           IdDecl ID="diff"
           Opt
             Min
               Call
                 IdUse ID="gcd1"
-                Opt
-                  List
-                    IdUse ID="a"
-                    IdUse ID="b"
+                List
+                  IdUse ID="a"
+                  IdUse ID="b"
               Call
                 IdUse ID="gcd2"
-                Opt
-                  List
-                    IdUse ID="a"
-                    IdUse ID="b"
+                List
+                  IdUse ID="a"
+                  IdUse ID="b"
         Print
           IdUse ID="diff"
         Return

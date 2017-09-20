@@ -30,9 +30,8 @@ Gt : ComparisonExpr ;
 Eq : ComparisonExpr ;
 Neq : ComparisonExpr;
 
-Call : Expr ::= Fun:IdUse [PassParas];
-PassParas ::= Expr*;
+Call : Expr ::= Fun:IdUse Expr*;
 
-Read : Expr ::= [PassParas];
+Read : Expr ::= Expr*;
 
 IdDecl ::= <ID>;

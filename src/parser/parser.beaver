@@ -37,10 +37,9 @@
 %typeof if_stmt = "IfStmt";
 %typeof while_stmt = "WhileStmt";
 %typeof call = "Expr";
-%typeof pass_opt = "Opt";
-%typeof pass_list = "List";
 %typeof print = "Stmt";
 %typeof read = "Expr";
+%typeof expr_list = "List";
 
 %goal program;
 
@@ -138,18 +137,15 @@ number =
     NUMERAL.num {: return new Numeral(num); :};
 
 call =
-    id_use.a LPARENTHESES pass_opt.b RPARENTHESES {: return new Call(a,b); :};
+    id_use.a LPARENTHESES expr_list.b RPARENTHESES {: return new Call(a,b); :};
 
-pass_opt =
-    /* epsilon */ {: return new Opt(); :}
-    |   pass_list.a {: return new Opt(a); :};
-
-pass_list =
-    expr.a {: return new List().add(a); :}
-    |   pass_list.a COMMA expr.b {: return a.add(b); :};
+expr_list =
+    /* epsilon */ {: return new List(); :}
+    |   expr.a {: return new List().add(a); :}
+    |   expr_list.a COMMA expr.b {: return a.add(b); :};
 
 read =
-    READ LPARENTHESES pass_opt.a RPARENTHESES {: return new Read(a); :};
+    READ LPARENTHESES expr_list.a RPARENTHESES {: return new Read(a); :};
 
 id_use = ID.id {: return new IdUse(id); :} ;
 id_decl = ID.id {: return new IdDecl(id); :};

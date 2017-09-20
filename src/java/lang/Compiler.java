@@ -1,8 +1,6 @@
 package lang;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.io.*;
 
 import beaver.Parser.Exception;
 
@@ -34,8 +32,11 @@ public class Compiler {
 			String filename = args[0];
 			LangScanner scanner = new LangScanner(new FileReader(filename));
 			LangParser parser = new LangParser();
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            PrintStream outStream = new PrintStream(bytes);
 			Program program = (Program) parser.parse(scanner);
-            System.out.println(MSNVisitor.result(program));
+            program.prettyPrint(outStream);
+//            System.out.println(MSNVisitor.result(program));
 //            DrAST_root_node = program; //Enable debugging with DrAST
 //			System.out.println(program.dumpTree());
 		} catch (FileNotFoundException e) {
