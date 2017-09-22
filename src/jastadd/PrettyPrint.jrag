@@ -29,7 +29,9 @@ aspect PrettyPrint {
         for (int i = 0; i < getNumStmt(); ++i) {
             out.print(ind+" ");
             getStmt(i).prettyPrint(out, ind+"   ");
-            out.print(";");
+            if (!(getStmt(i) instanceof IfStmt) && !(getStmt(i) instanceof WhileStmt)) {
+                out.print(";");
+            }
             out.println();
         }
         out.print("}");
@@ -71,7 +73,9 @@ aspect PrettyPrint {
             for (int i = 0; i < getNumBody(); ++i) {
                 out.print(ind+" ");
                 getBody(i).prettyPrint(out, ind+"   ");
-                out.print(";");
+                if (!(getBody(i) instanceof IfStmt) && !(getBody(i) instanceof WhileStmt)) {
+                    out.print(";");
+                }
                 out.println();
             }
         }
@@ -83,7 +87,9 @@ aspect PrettyPrint {
             for (int i = 0; i < getNumElse(); ++i) {
                 out.print(ind+" ");
                 getElse(i).prettyPrint(out, ind+"   ");
-                out.print(";");
+                if (!(getElse(i) instanceof IfStmt) && !(getElse(i) instanceof WhileStmt)) {
+                    out.print(";");
+                }
                 out.println();
             }
             out.print(ind);
@@ -103,7 +109,9 @@ aspect PrettyPrint {
             for (int i = 0; i < getNumBody(); ++i) {
                 out.print(ind+" ");
                 getBody(i).prettyPrint(out, ind+"   ");
-                out.print(";");
+                if (!(getBody(i) instanceof IfStmt) && !(getBody(i) instanceof WhileStmt)) {
+                    out.print(";");
+                }
                 out.println();
             }
         }

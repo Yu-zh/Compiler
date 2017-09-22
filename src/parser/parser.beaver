@@ -48,7 +48,6 @@ program = func_list.a {: return new Program(a); :} ;
 
 func_list =
     /* epsilon */ {: return new List(); :}
-    |   func.a {: return new List().add(a); :}
     |   func_list.a func.b {: return a.add(b); :} ;
 
 func =
@@ -65,7 +64,6 @@ para =
 
 stmt_list =
     /* epsilon */ {: return new List(); :}
-    |   stmt.a {: return new List().add(a); :}
     |   stmt_list.a stmt.b {: return a.add(b); :};
 
 stmt =
