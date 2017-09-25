@@ -4,6 +4,7 @@ import java.io.*;
 
 import beaver.Parser.Exception;
 
+import lang.ast.ErrorMessage;
 import lang.ast.Program;
 import lang.ast.LangParser;
 import lang.ast.LangScanner;
@@ -35,7 +36,13 @@ public class Compiler {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             PrintStream outStream = new PrintStream(bytes);
 			Program program = (Program) parser.parse(scanner);
-            program.prettyPrint(outStream);
+//            program.prettyPrint(outStream);
+			StringBuilder sb = new StringBuilder();
+			for (ErrorMessage m : program.errors()) {
+				sb.append(m).append("\n");
+			}
+			String actual = sb.toString();
+			System.out.print(actual);
 //            System.out.println(MSNVisitor.result(program));
 //            DrAST_root_node = program; //Enable debugging with DrAST
 //			System.out.println(program.dumpTree());

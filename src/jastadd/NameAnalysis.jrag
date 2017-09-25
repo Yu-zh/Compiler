@@ -1,128 +1,93 @@
-import java.util.Set;
-import java.util.HashSet;
-
 aspect NameAnalysis {
-	public class SymbolTable {
-		private static final SymbolTable BOTTOM = new SymbolTable() {
-			@Override
-			public boolean declare(String name) {
-				throw new UnsupportedOperationException(
-						"can not add name to bottom of name stack");
-			}
-			@Override
-			public boolean lookup(String name) {
-				return false;
-			}
-		};
+    syn IdDecl IdUse.decl() = lookup(getID());
+    inh IdDecl IdUse.lookup(String name);
 
-		private final SymbolTable tail;
-		private final Set<String> names = new HashSet<String>();
+    eq Program.getChild().lookup(String name) = unknownDecl();
 
-		public SymbolTable() {
-			tail = BOTTOM;
-		}
-
-		public SymbolTable(SymbolTable tail) {
-			this.tail = tail;
-		}
-
-		/**
-		 * Attempt to add a new name to the symbol table.
-		 * @return true if name was not already declared
-		 */
-		public boolean declare(String name) {
-			return names.add(name);
-		}
-
-		/**
-		 * @return true if name has been declared
-		 */
-		public boolean lookup(String name) {
-			return names.contains(name) || tail.lookup(name);
-		}
-
-		/**
-		 * Push a new table on the stack.
-		 * @return the new top of the stack
-		 */
-		public SymbolTable push() {
-			return new SymbolTable(this);
-		}
-	}
-
-	/**
-	 * @param err where to write error messages
-	 */
-	public void Program.checkNames(PrintStream err) {
-		SymbolTable symbols = new SymbolTable();
-		checkNames(err, symbols);
-	}
-
-	/**
-	 * @param err where to write error messages
-	 * @param symbols symbol table
-	 */
-	public void ASTNode.checkNames(PrintStream err, SymbolTable symbols) {
-		for (int i = 0; i < getNumChild(); ++i) {
-			getChild(i).checkNames(err, symbols);
-		}
-	}
-
-    public void Func.checkNames(PrintStream err, SymbolTable symbols) {
-        getIdDecl().checkNames(err, symbols);
-        for (int i = 0; i < getNumPara(); ++i) {
-            getPara(i).checkNames(err, symbols);
+    eq Func.getStmt(int index).lookup(String name) {
+        IdDecl decl = localLookup(name, index);
+        return !decl.isUnknown() ? decl : lookup(name);
+    }
+    inh IdDecl Func.lookup(String name);
+    syn IdDecl Func.localLookup(String name, int until) {
+        for (int i = 0; i < getNumPara(); i++) {
+            if (getPara(i).getIdDecl().getID().equals(name)) {
+                return getPara(i).getIdDecl();
+            }
         }
-        for (int i = 0; i < getNumStmt(); ++i) {
-            getStmt(i).checkNames(err, symbols);
+        for (int i = 0; i <= until; i++) {
+            if ((getStmt(i) instanceof VarDecl)) {
+                VarDecl varDecl = (VarDecl) getStmt(i);
+                if (varDecl.getIdDecl().getID().equals(name)) {
+                    return varDecl.getIdDecl();
+                }
+            }
         }
+        return unknownDecl();
     }
 
-    public void IfStmt.checkNames(PrintStream err, SymbolTable symbols) {
-        getCond().checkNames(err, symbols);
-        symbols = symbols.push();
-        for (int i = 0; i < getNumBody(); ++i) {
-            getBody(i).checkNames(err, symbols);
+    eq IfStmt.getBody(int index).lookup(String name) {
+        IdDecl decl = localLookup(name, index, 0);
+        return !decl.isUnknown() ? decl : lookup(name);
+    }
+    eq IfStmt.getElse(int index).lookup(String name) {
+        IdDecl decl = localLookup(name, index, 1);
+        return !decl.isUnknown() ? decl : lookup(name);
+    }
+    syn IdDecl IfStmt.localLookup(String name, int until, int flag) {
+        if (flag==0) {
+            for (int i = 0; i < until; i++) {
+                if ((getBody(i) instanceof VarDecl)) {
+                    VarDecl varDecl = (VarDecl) getBody(i);
+                    if (varDecl.getIdDecl().getID().equals(name)) {
+                        return varDecl.getIdDecl();
+                    }
+                }
+            }
         }
-        for (int i = 0; i < getNumElse(); ++i) {
-            getElse(i).checkNames(err, symbols);
+        else if (flag==1) {
+            for (int i = 0; i < until; i++) {
+                 if ((getElse(i) instanceof VarDecl)) {
+                      VarDecl varDecl = (VarDecl) getElse(i);
+                      if (varDecl.getIdDecl().getID().equals(name)) {
+                          return varDecl.getIdDecl();
+                      }
+                 }
+            }
         }
+        else {
+            System.out.println("IfStmt gives error flag");
+        }
+        return unknownDecl();
+    }
+    inh IdDecl IfStmt.lookup(String name);
+
+    eq WhileStmt.getBody(int index).lookup(String name) {
+        IdDecl decl = localLookup(name, index);
+        return !decl.isUnknown() ? decl : lookup(name);
+    }
+    syn IdDecl WhileStmt.localLookup(String name, int until) {
+        for (int i = 0; i < until; i++) {
+            if ((getBody(i) instanceof VarDecl)) {
+                VarDecl varDecl = (VarDecl) getBody(i);
+                    if (varDecl.getIdDecl().getID().equals(name)) {
+                        return varDecl.getIdDecl();
+                    }
+            }
+        }
+        return unknownDecl();
+    }
+    inh IdDecl WhileStmt.lookup(String name);
+
+    eq Call.getFun().lookup(String name) = lookupFunc(name);
+    inh IdDecl Call.lookupFunc(String name);
+    eq Program.getChild().lookupFunc(String name) {
+        for (int i = 0; i < getNumFunc(); i++) {
+            if (getFunc(i).getIdDecl().getID().equals(name)) {
+                return getFunc(i).getIdDecl();
+            }
+        }
+        return unknownDecl();
     }
 
-    public void WhileStmt.checkNames(PrintStream err, SymbolTable symbols) {
-        getCond().checkNames(err, symbols);
-        symbols = symbols.push();
-        for (int i = 0; i < getNumBody(); ++i) {
-            getBody(i).checkNames(err, symbols);
-        }
-    }
-
-    public void VarDecl.checkNames(PrintStream err, SymbolTable symbols) {
-        if (hasExpr()) {
-            getExpr().checkNames(err, symbols);
-        }
-        getIdDecl().checkNames(err, symbols);
-    }
-
-	public void IdDecl.checkNames(PrintStream err, SymbolTable symbols) {
-		if (!symbols.declare(getID())) {
-			err.format("Error at line %d: symbol \'%s\' is already declared!", getLine(), getID());
-			err.println();
-		}
-	}
-
-	public void IdUse.checkNames(PrintStream err, SymbolTable symbols) {
-		if (!symbols.lookup(getID())) {
-			err.format("Error at line %d: symbol \'%s\' has not been declared before this use!", getLine(), getID());
-			err.println();
-		}
-	}
-
-	/**
-	 * Helper method
-	 * @return line number of this token
-	 */
-	public int ASTNode.getLine() {
-		return getLine(getStart());
-	}
 }

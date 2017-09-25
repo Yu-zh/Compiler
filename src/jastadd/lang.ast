@@ -35,3 +35,5 @@ Call : Expr ::= Fun:IdUse Expr*;
 Read : Expr ::= Expr*;
 
 IdDecl ::= <ID>;
+
+UnknownDecl : IdDecl;
