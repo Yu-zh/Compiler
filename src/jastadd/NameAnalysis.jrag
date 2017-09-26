@@ -36,7 +36,7 @@ aspect NameAnalysis {
     }
     syn IdDecl IfStmt.localLookup(String name, int until, int flag) {
         if (flag==0) {
-            for (int i = 0; i < until; i++) {
+            for (int i = 0; i <= until; i++) {
                 if ((getBody(i) instanceof VarDecl)) {
                     VarDecl varDecl = (VarDecl) getBody(i);
                     if (varDecl.getIdDecl().getID().equals(name)) {
@@ -46,7 +46,7 @@ aspect NameAnalysis {
             }
         }
         else if (flag==1) {
-            for (int i = 0; i < until; i++) {
+            for (int i = 0; i <= until; i++) {
                  if ((getElse(i) instanceof VarDecl)) {
                       VarDecl varDecl = (VarDecl) getElse(i);
                       if (varDecl.getIdDecl().getID().equals(name)) {
@@ -67,7 +67,7 @@ aspect NameAnalysis {
         return !decl.isUnknown() ? decl : lookup(name);
     }
     syn IdDecl WhileStmt.localLookup(String name, int until) {
-        for (int i = 0; i < until; i++) {
+        for (int i = 0; i <= until; i++) {
             if ((getBody(i) instanceof VarDecl)) {
                 VarDecl varDecl = (VarDecl) getBody(i);
                     if (varDecl.getIdDecl().getID().equals(name)) {
@@ -88,6 +88,31 @@ aspect NameAnalysis {
             }
         }
         return unknownDecl();
+    }
+
+    inh IdDecl IdDecl.lookup(String name);
+//    syn boolean IdDecl.isMultiDeclared() = lookup(getID()) != this;
+    syn boolean IdDecl.isMultiDeclared() {
+        boolean result = lookup(getID()) != this;
+        if (result) {
+            System.out.println(lookup(getID()));
+            System.out.println(this.getID());
+            return result;
+        } else {
+            return result;
+        }
+    }
+
+    eq Func.getIdDecl().lookup(String name) = lookupFunc(name);
+    inh IdDecl Func.lookupFunc(String name);
+
+    eq Func.getPara(int index).lookup(String name) {
+        for (int i = 0; i < index; i++) {
+            if (getPara(i).getIdDecl().getID().equals(name)) {
+                return getPara(i).getIdDecl();
+            }
+        }
+        return getPara(index).getIdDecl();
     }
 
 }
