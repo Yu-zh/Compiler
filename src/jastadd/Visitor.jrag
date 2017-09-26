@@ -13,7 +13,7 @@ aspect Visitor {
 		public Object visit(Return node, Object data);
 		public Object visit(IfStmt node, Object data);
 		public Object visit(WhileStmt node, Object data);
-		public Object visit(Print node, Object data);
+        public Object visit(FuncCallStmt node, Object data);
 		public Object visit(Add node, Object data);
 		public Object visit(Mul node, Object data);
 		public Object visit(Div node, Object data);
@@ -26,7 +26,6 @@ aspect Visitor {
 		public Object visit(Eq node, Object data);
 		public Object visit(Neq node, Object data);
 		public Object visit(Call node, Object data);
-		public Object visit(Read node, Object data);
 	}
 
 	public Object ASTNode.accept(Visitor visitor, Object data) {
@@ -71,9 +70,6 @@ aspect Visitor {
     public Object WhileStmt.accept(Visitor visitor, Object data) {
     	return visitor.visit(this, data);
     }
-    public Object Print.accept(Visitor visitor, Object data) {
-    	return visitor.visit(this, data);
-    }
     public Object Add.accept(Visitor visitor, Object data) {
        	return visitor.visit(this, data);
     }
@@ -110,7 +106,7 @@ aspect Visitor {
     public Object Call.accept(Visitor visitor, Object data) {
     	return visitor.visit(this, data);
     }
-    public Object Read.accept(Visitor visitor, Object data) {
-       	return visitor.visit(this, data);
+    public Object FuncCallStmt.accept(Visitor visitor, Object data) {
+        return visitor.visit(this, data);
     }
 }

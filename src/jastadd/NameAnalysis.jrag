@@ -91,17 +91,7 @@ aspect NameAnalysis {
     }
 
     inh IdDecl IdDecl.lookup(String name);
-//    syn boolean IdDecl.isMultiDeclared() = lookup(getID()) != this;
-    syn boolean IdDecl.isMultiDeclared() {
-        boolean result = lookup(getID()) != this;
-        if (result) {
-            System.out.println(lookup(getID()));
-            System.out.println(this.getID());
-            return result;
-        } else {
-            return result;
-        }
-    }
+    syn boolean IdDecl.isMultiDeclared() = lookup(getID()) != this;
 
     eq Func.getIdDecl().lookup(String name) = lookupFunc(name);
     inh IdDecl Func.lookupFunc(String name);

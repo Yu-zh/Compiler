@@ -119,27 +119,6 @@ aspect PrettyPrint {
         out.print("}");
     }
 
-    public void Print.prettyPrint(PrintStream out, String ind) {
-        out.print("print");
-        out.print("(");
-        getOutput().prettyPrint(out, ind);
-        out.print(")");
-    }
-
-    public void Read.prettyPrint(PrintStream out, String ind) {
-        out.print("read");
-        out.print("(");
-        if (getNumExpr() > 0) {
-            for( int i = 0; i < getNumExpr(); ++i) {
-                getExpr(i).prettyPrint(out, ind);
-                if (i + 1 < getNumExpr()){
-                    out.print(", ");
-                }
-            }
-        }
-        out.print(")");
-    }
-
     public void Call.prettyPrint(PrintStream out, String ind) {
         getFun().prettyPrint(out, ind);
         out.print("(");

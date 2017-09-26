@@ -9,7 +9,7 @@ Assign : Stmt ::= IdUse Expr;
 Return : Stmt ::= Expr;
 IfStmt : Stmt ::= Cond:Expr Body:Stmt* Else:Stmt*;
 WhileStmt : Stmt ::= Cond:Expr Body:Stmt*;
-Print : Stmt ::= Output:Expr;
+FuncCallStmt : Stmt ::= Call;
 
 abstract Expr;
 Numeral : Expr ::= <NUMERAL>;
@@ -31,8 +31,6 @@ Eq : ComparisonExpr ;
 Neq : ComparisonExpr;
 
 Call : Expr ::= Fun:IdUse Expr*;
-
-Read : Expr ::= Expr*;
 
 IdDecl ::= <ID>;
 

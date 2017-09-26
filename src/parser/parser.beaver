@@ -11,8 +11,7 @@
 
 %terminals ID, NUMERAL,  INT, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE,
     ADD, MUL, DIV, MIN, MOD, LE, LT, GE, GT, EQ, NEQ,
-    LBRACE, RBRACE, LPARENTHESES, RPARENTHESES,
-    READ, PRINT;
+    LBRACE, RBRACE, LPARENTHESES, RPARENTHESES;
 
 %typeof program = "Program";
 %typeof func_list = "List";
@@ -37,8 +36,7 @@
 %typeof if_stmt = "IfStmt";
 %typeof while_stmt = "WhileStmt";
 %typeof call = "Expr";
-%typeof print = "Stmt";
-%typeof read = "Expr";
+%typeof funccallstmt = "Stmt";
 %typeof expr_list = "List";
 
 %goal program;
@@ -72,7 +70,7 @@ stmt =
     |   ret
     |   if_stmt
     |   while_stmt
-    |   print;
+    |   funccallstmt;
 
 assign =
     id_use.a ASSIGN expr.b SEMI {: return new Assign(a,b); :};
@@ -94,14 +92,13 @@ decl_opt =
     /* epsilon */ {: return new Opt(); :}
     |   ASSIGN expr.a {: return new Opt(a); :};
 
-print =
-    PRINT LPARENTHESES expr.a RPARENTHESES SEMI {: return new Print(a); :};
+funccallstmt =
+    id_use.a LPARENTHESES expr_list.b RPARENTHESES SEMI {: return new FuncCallStmt(new Call(a,b)); :};
 
 
 expr =
     arithmetic
-    |   comparison
-    |   read;
+    |   comparison;
 
 comparison =
     arithmetic.a EQ arithmetic.b {: return new Eq(a,b); :}
@@ -141,9 +138,6 @@ expr_list =
     /* epsilon */ {: return new List(); :}
     |   expr.a {: return new List().add(a); :}
     |   expr_list.a COMMA expr.b {: return a.add(b); :};
-
-read =
-    READ LPARENTHESES expr_list.a RPARENTHESES {: return new Read(a); :};
 
 id_use = ID.id {: return new IdUse(id); :} ;
 id_decl = ID.id {: return new IdDecl(id); :};
