@@ -4,7 +4,7 @@ Func ::= IdDecl Para* Stmt*;
 Para ::= IdDecl;
 
 abstract Stmt;
-VarDecl : Stmt ::= IdDecl [Expr];
+VarDecl : Stmt ::= Type IdDecl [Expr];
 Assign : Stmt ::= IdUse Expr;
 Return : Stmt ::= Expr;
 IfStmt : Stmt ::= Cond:Expr Body:Stmt* Else:Stmt*;
@@ -35,3 +35,9 @@ Call : Expr ::= Fun:IdUse Expr*;
 IdDecl ::= <ID>;
 
 UnknownDecl : IdDecl;
+PreFuncDecl : IdDecl;
+
+abstract Type;
+IntType : Type ::= <INT>;
+BoolType : Type ::= <BOOL>;
+UnknownType : Type;

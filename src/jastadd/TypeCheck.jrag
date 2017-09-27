@@ -1,0 +1,21 @@
+aspect TypeCheck{
+    eq Program.getChild().type() = unknownType();
+
+    syn Type Expr.type();
+
+    eq IdUse.type() = decl().type();
+    eq Numeral.type() = new IntType("int");
+    eq BinaryExpr.type() {
+        if (getLeft().type() == getRight().type()) {
+            return getLeft().type();
+        }
+        return unknownType();
+    }
+    eq ComparisonExpr.type() = new BoolType("bool");
+    eq Call.type() = new IntType("int");
+
+    inh Type IdDecl.type();
+    eq VarDecl.getIdDecl().type() = getType();
+    eq Program.unknownDecl().type() = unknownType();
+
+}

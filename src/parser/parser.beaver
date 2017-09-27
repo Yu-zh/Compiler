@@ -9,7 +9,7 @@
 	}
 :};
 
-%terminals ID, NUMERAL,  INT, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE,
+%terminals ID, NUMERAL, INT, BOOL, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE,
     ADD, MUL, DIV, MIN, MOD, LE, LT, GE, GT, EQ, NEQ,
     LBRACE, RBRACE, LPARENTHESES, RPARENTHESES;
 
@@ -38,6 +38,9 @@
 %typeof call = "Expr";
 %typeof funccallstmt = "Stmt";
 %typeof expr_list = "List";
+%typeof type = "Type";
+%typeof type_int = "IntType";
+%typeof type_bool = "BoolType";
 
 %goal program;
 
@@ -76,7 +79,7 @@ assign =
     id_use.a ASSIGN expr.b SEMI {: return new Assign(a,b); :};
 
 var_decl =
-    INT id_decl.a decl_opt.b SEMI {: return new VarDecl(a,b); :};
+    type.t id_decl.a decl_opt.b SEMI {: return new VarDecl(t,a,b); :};
 
 ret =
     RETURN expr.a SEMI {: return new Return(a); :};
@@ -142,3 +145,8 @@ expr_list =
 id_use = ID.id {: return new IdUse(id); :} ;
 id_decl = ID.id {: return new IdDecl(id); :};
 
+type_int = INT.i {: return new IntType(i); :};
+type_bool = BOOL.i {: return new BoolType(i); :};
+type =
+    type_int
+    |   type_bool;

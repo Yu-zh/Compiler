@@ -82,6 +82,14 @@ aspect NameAnalysis {
     eq Call.getFun().lookup(String name) = lookupFunc(name);
     inh IdDecl Call.lookupFunc(String name);
     eq Program.getChild().lookupFunc(String name) {
+        for (PreFuncDecl pfd : preFunc()) {
+            if (pfd.getID().equals(name)) {
+                return pfd;
+            }
+        }
+        /*for (int i = 0; i < preFunc().getNumPreFuncDecl(); i++) {
+            System.out.println(i);
+        }*/ //why this not work ???
         for (int i = 0; i < getNumFunc(); i++) {
             if (getFunc(i).getIdDecl().getID().equals(name)) {
                 return getFunc(i).getIdDecl();
@@ -91,7 +99,12 @@ aspect NameAnalysis {
     }
 
     inh IdDecl IdDecl.lookup(String name);
-    syn boolean IdDecl.isMultiDeclared() = lookup(getID()) != this;
+//    syn boolean IdDecl.isMultiDeclared() = lookup(getID()) != this;
+    syn boolean IdDecl.isMultiDeclared() {
+//        System.out.println(this.type());
+//        System.out.println(this.getID());
+        return lookup(getID()) != this;
+    }
 
     eq Func.getIdDecl().lookup(String name) = lookupFunc(name);
     inh IdDecl Func.lookupFunc(String name);
@@ -103,6 +116,13 @@ aspect NameAnalysis {
             }
         }
         return getPara(index).getIdDecl();
+    }
+
+    syn nta List<PreFuncDecl> Program.preFunc() {
+        List<PreFuncDecl> plist = new List<PreFuncDecl>();
+        plist.add(new PreFuncDecl("read"));
+        plist.add(new PreFuncDecl("print"));
+        return plist;
     }
 
 }
