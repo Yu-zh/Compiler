@@ -46,4 +46,16 @@ aspect ErrorContributions {
     Stmt contributes error("type does not check!")
         when typeNotCheck()
         to Program.errors() for program();
+
+/*    IdUse contributes error("symbol '" + getID() + "' is used as function")
+        when decl().isVariable() && isForCall()
+        to Program.errors() for program();
+
+    IdUse contributes error("symbol '" + getID() + "' is used as variable")
+        when decl().isFunc() && !isForCall()
+        to Program.errors() for program();*/
+
+    Call contributes error("number of para error expected: " + Integer.toString(getFun().decl().function()) + " given: " + Integer.toString(getNumExpr()))
+        when getFun().isNotMatch()
+        to Program.errors() for program();
 }

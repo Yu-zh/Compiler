@@ -1,0 +1,15 @@
+/* aspect VarOrFunc{
+    inh boolean IdDecl.isVariable();
+    inh boolean IdDecl.isFunc();
+
+    eq Func.getIdDecl().isFunc() = true;
+    eq Func.getIdDecl().isVariable() = false;
+    eq VarDecl.getIdDecl().isFunc() = false;
+    eq VarDecl.getIdDecl().isVariable() = true;
+    syn boolean PreFuncDecl.isFunc() = true;
+    syn boolean PreFuncDecl.isVariable() = false;
+
+    inh boolean IdUse.isForCall();
+    eq Program.getChild().isForCall() = false;
+    eq Call.getFun().isForCall() = true;
+}  no need to implement this cause the name spaces for var and fun are independent... */
