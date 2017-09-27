@@ -42,19 +42,17 @@ aspect TypeCheck{
 
     eq IfStmt.getCond().expectedType() = boolType();
     inh BoolType IfStmt.boolType();
+    eq WhileStmt.getCond().expectedType() = boolType();
+    inh BoolType WhileStmt.boolType();
+    eq VarDecl.getExpr().expectedType() = getIdDecl().type();
 
-
-
-    syn boolean IfStmt.typeCheck() {
+    syn boolean Stmt.typeNotCheck() = false;
+    syn boolean IfStmt.typeNotCheck() {
         boolean result = (!getCond().expectedType().isCompatible(getCond().type())) && (!getCond().type().isUnknownType());
-
-            System.out.println(this);
-            System.out.println(getCond().type());
-            System.out.println(getCond().expectedType());
-
         return result;
     }
-
+    syn boolean WhileStmt.typeNotCheck() = (!getCond().expectedType().isCompatible(getCond().type())) && (!getCond().type().isUnknownType());
+    syn boolean VarDecl.typeNotCheck() = (!getExpr().expectedType().isCompatible(getExpr().type())) && (!getExpr().type().isUnknownType());
 }
 
 aspect Types{

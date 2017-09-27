@@ -43,7 +43,7 @@ aspect ErrorContributions {
 //		when isCircular()
 //		to Program.errors() for program();
 
-    IfStmt contributes error("type does not check!")
-        when typeCheck()
+    Stmt contributes error("type does not check!")
+        when typeNotCheck()
         to Program.errors() for program();
 }
