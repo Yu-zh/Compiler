@@ -1,21 +1,72 @@
 aspect TypeCheck{
     eq Program.getChild().type() = unknownType();
+    eq Program.unknownDecl().type() = unknownType();
 
     syn Type Expr.type();
 
     eq IdUse.type() = decl().type();
-    eq Numeral.type() = new IntType("int");
+
+    eq Numeral.type() = intType();
+    inh Type Numeral.intType();
+
     eq BinaryExpr.type() {
         if (getLeft().type() == getRight().type()) {
             return getLeft().type();
         }
         return unknownType();
     }
-    eq ComparisonExpr.type() = new BoolType("bool");
-    eq Call.type() = new IntType("int");
+    eq ComparisonExpr.type() = boolType();
+    inh Type ComparisonExpr.boolType();
+
+    eq Call.type() = intType();
+    inh Type Call.intType();
 
     inh Type IdDecl.type();
-    eq VarDecl.getIdDecl().type() = getType();
-    eq Program.unknownDecl().type() = unknownType();
+    eq VarDecl.getIdDecl().type() {
+        String typeString = getType().getString();
+        if (typeString.equals("int")) {
+            return intType();
+        } else if (typeString.equals("bool")) {
+            return boolType();
+        } else {
+            System.out.println("unknown type in vardecl!!!");
+        }
+        return unknownType();
+    }
+    inh Type VarDecl.intType();
+    inh Type VarDecl.boolType();
 
+
+    eq Program.getChild().expectedType() = unknownType(); //root pattern
+    inh Type Expr.expectedType();
+
+    eq IfStmt.getCond().expectedType() = boolType();
+    inh BoolType IfStmt.boolType();
+
+
+
+    syn boolean IfStmt.typeCheck() {
+        boolean result = (!getCond().expectedType().isCompatible(getCond().type())) && (!getCond().type().isUnknownType());
+
+            System.out.println(this);
+            System.out.println(getCond().type());
+            System.out.println(getCond().expectedType());
+
+        return result;
+    }
+
+}
+
+aspect Types{
+    syn nta IntType Program.intType() = new IntType();
+    syn nta BoolType Program.boolType() = new BoolType();
+
+    eq Program.getChild().intType() = intType();
+    eq Program.getChild().boolType() = boolType();
+
+    syn boolean Type.isCompatible(Type other) = true;
+    eq IntType.isCompatible(Type other) = other == intType();
+    inh IntType IntType.intType();
+    eq BoolType.isCompatible(Type other) = other == boolType();
+    inh BoolType BoolType.boolType();
 }

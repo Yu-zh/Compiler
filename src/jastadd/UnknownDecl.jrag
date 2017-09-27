@@ -13,4 +13,7 @@ aspect UnknownType {
 
     inh UnknownType ASTNode.unknownType();
     eq Program.getChild().unknownType() = unknownType();
+
+    syn boolean Type.isUnknownType() = false;
+    eq UnknownType.isUnknownType() = true;
 }

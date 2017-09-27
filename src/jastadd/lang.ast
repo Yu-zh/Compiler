@@ -37,7 +37,7 @@ IdDecl ::= <ID>;
 UnknownDecl : IdDecl;
 PreFuncDecl : IdDecl;
 
-abstract Type;
-IntType : Type ::= <INT>;
-BoolType : Type ::= <BOOL>;
+Type ::= <String>;
+IntType : Type;
+BoolType : Type;
 UnknownType : Type;
