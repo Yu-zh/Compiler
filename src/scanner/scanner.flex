@@ -44,6 +44,9 @@ Comment = \/\/.*\n
 ")"           { return sym(Terminals.RPARENTHESES); }
 "int"         { return sym(Terminals.INT); }
 "bool"        { return sym(Terminals.BOOL); }
+"void"        { return sym(Terminals.VOID); }
+"true"        { return sym(Terminals.TRUE); }
+"false"       { return sym(Terminals.FALSE); }
 "="           { return sym(Terminals.ASSIGN); }
 ";"           { return sym(Terminals.SEMI); }
 "+"           { return sym(Terminals.ADD); }

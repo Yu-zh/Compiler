@@ -1,12 +1,12 @@
 Program ::= Func*;
 
-Func ::= IdDecl Para* Stmt*;
-Para ::= IdDecl;
+Func ::= Type IdDecl Para* Stmt*;
+Para ::= Type IdDecl;
 
 abstract Stmt;
 VarDecl : Stmt ::= Type IdDecl [Expr];
 Assign : Stmt ::= IdUse Expr;
-Return : Stmt ::= Expr;
+Return : Stmt ::= [Expr];
 IfStmt : Stmt ::= Cond:Expr Body:Stmt* Else:Stmt*;
 WhileStmt : Stmt ::= Cond:Expr Body:Stmt*;
 FuncCallStmt : Stmt ::= Call;
@@ -32,6 +32,10 @@ Neq : ComparisonExpr;
 
 Call : Expr ::= Fun:IdUse Expr*;
 
+abstract BoolExpr : Expr;
+BoolTrue : BoolExpr;
+BoolFalse : BoolExpr;
+
 IdDecl ::= <ID>;
 
 UnknownDecl : IdDecl;
@@ -40,4 +44,5 @@ PreFunc : Func;
 abstract Type;
 IntType : Type;
 BoolType : Type;
+VoidType : Type;
 UnknownType : Type;

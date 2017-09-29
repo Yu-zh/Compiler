@@ -9,9 +9,10 @@
 	}
 :};
 
-%terminals ID, NUMERAL, INT, BOOL, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE,
+%terminals ID, NUMERAL, INT, BOOL, VOID, ASSIGN, SEMI, RETURN, COMMA, IF, WHILE, ELSE,
     ADD, MUL, DIV, MIN, MOD, LE, LT, GE, GT, EQ, NEQ,
-    LBRACE, RBRACE, LPARENTHESES, RPARENTHESES;
+    LBRACE, RBRACE, LPARENTHESES, RPARENTHESES,
+    TRUE, FALSE;
 
 %typeof program = "Program";
 %typeof func_list = "List";
@@ -21,6 +22,7 @@
 %typeof id_use = "IdUse";
 %typeof id_decl = "IdDecl";
 %typeof expr = "Expr";
+%typeof expr_opt = "Opt";
 %typeof stmt = "Stmt";
 %typeof stmt_list = "List";
 %typeof decl_opt = "Opt";
@@ -41,6 +43,10 @@
 %typeof type = "Type";
 %typeof type_int = "IntType";
 %typeof type_bool = "BoolType";
+%typeof type_void = "VoidType";
+%typeof bool_expr = "BoolExpr";
+%typeof bool_true = "BoolTrue";
+%typeof bool_false = "BoolFalse";
 
 %goal program;
 
@@ -52,7 +58,7 @@ func_list =
     |   func_list.a func.b {: return a.add(b); :} ;
 
 func =
-    INT id_decl.a LPARENTHESES para_list.b RPARENTHESES LBRACE stmt_list.c RBRACE{: return new Func(a,b,c); :} ;
+    type.t id_decl.a LPARENTHESES para_list.b RPARENTHESES LBRACE stmt_list.c RBRACE{: return new Func(t,a,b,c); :} ;
 
 para_list =
     /* epsilon */ {: return new List(); :}
@@ -60,7 +66,7 @@ para_list =
     |   para_list.a COMMA para.b {: return a.add(b); :};
 
 para =
-    INT id_decl.a {: return new Para(a); :};
+    type.t id_decl.a {: return new Para(t,a); :};
 
 
 stmt_list =
@@ -82,7 +88,11 @@ var_decl =
     type.t id_decl.a decl_opt.b SEMI {: return new VarDecl(t,a,b); :};
 
 ret =
-    RETURN expr.a SEMI {: return new Return(a); :};
+    RETURN expr_opt.a SEMI {: return new Return(a); :};
+
+expr_opt =
+    /* epsilon */ {: return new Opt(); :}
+    |   expr.a {: return new Opt(a); :};
 
 if_stmt =
     IF LPARENTHESES expr.a RPARENTHESES LBRACE stmt_list.b RBRACE {: return new IfStmt(a,b,new List()); :}
@@ -101,7 +111,8 @@ funccallstmt =
 
 expr =
     arithmetic
-    |   comparison;
+    |   comparison
+    |   bool_expr;
 
 comparison =
     arithmetic.a EQ arithmetic.b {: return new Eq(a,b); :}
@@ -147,6 +158,14 @@ id_decl = ID.id {: return new IdDecl(id); :};
 
 type_int = INT {: return new IntType(); :};
 type_bool = BOOL {: return new BoolType(); :};
+type_void = VOID {: return new VoidType(); :};
 type =
     type_int
-    |   type_bool;
+    |   type_bool
+    |   type_void;
+
+bool_true = TRUE {: return new BoolTrue(); :};
+bool_false = FALSE {: return new BoolFalse(); :};
+bool_expr =
+    bool_true
+    |   bool_false;

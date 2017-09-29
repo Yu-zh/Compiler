@@ -120,8 +120,8 @@ aspect NameAnalysis {
 
     syn nta List<PreFunc> Program.preFunc() {
         List<PreFunc> plist = new List<PreFunc>();
-        plist.add(new PreFunc(new IdDecl("read"), new List(), new List()));
-        plist.add(new PreFunc(new IdDecl("print"), new List().add(new Para(new IdDecl("output"))), new List()));
+        plist.add(new PreFunc(new UnknownType(), new IdDecl("read"), new List(), new List()));
+        plist.add(new PreFunc(new UnknownType(), new IdDecl("print"), new List().add(new Para(new UnknownType(), new IdDecl("output"))), new List()));
         return plist;
     }
 

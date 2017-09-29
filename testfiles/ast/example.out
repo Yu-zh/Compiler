@@ -1,11 +1,14 @@
 Program
   List
     Func
+      IntType
       IdDecl ID="gcd1"
       List
         Para
+          IntType
           IdDecl ID="a"
         Para
+          IntType
           IdDecl ID="b"
       List
         WhileStmt
@@ -30,13 +33,17 @@ Program
                     IdUse ID="b"
                     IdUse ID="a"
         Return
-          IdUse ID="a"
+          Opt
+            IdUse ID="a"
     Func
+      IntType
       IdDecl ID="gcd2"
       List
         Para
+          IntType
           IdDecl ID="a"
         Para
+          IntType
           IdDecl ID="b"
       List
         IfStmt
@@ -45,17 +52,20 @@ Program
             Numeral NUMERAL="0"
           List
             Return
-              IdUse ID="a"
+              Opt
+                IdUse ID="a"
           List
         Return
-          Call
-            IdUse ID="gcd2"
-            List
-              IdUse ID="b"
-              Mod
-                IdUse ID="a"
+          Opt
+            Call
+              IdUse ID="gcd2"
+              List
                 IdUse ID="b"
+                Mod
+                  IdUse ID="a"
+                  IdUse ID="b"
     Func
+      IntType
       IdDecl ID="main"
       List
       List
@@ -116,4 +126,5 @@ Program
             List
               IdUse ID="diff"
         Return
-          Numeral NUMERAL="0"
+          Opt
+            Numeral NUMERAL="0"

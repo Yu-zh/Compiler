@@ -26,7 +26,7 @@ public abstract class TraversingVisitor implements lang.ast.Visitor{
     public Object visit(Return node, Object data) { return visitChildren(node, data); }
     public Object visit(IfStmt node, Object data) { return visitChildren(node, data); }
     public Object visit(WhileStmt node, Object data) { return visitChildren(node, data); }
-    public Object visit(Print node, Object data) { return visitChildren(node, data); }
+    public Object visit(FuncCallStmt node, Object data) { return visitChildren(node, data); }
     public Object visit(Add node, Object data) { return visitChildren(node, data); }
     public Object visit(Mul node, Object data) { return visitChildren(node, data); }
     public Object visit(Div node, Object data) { return visitChildren(node, data); }
@@ -39,5 +39,4 @@ public abstract class TraversingVisitor implements lang.ast.Visitor{
     public Object visit(Eq node, Object data) { return visitChildren(node, data); }
     public Object visit(Neq node, Object data) { return visitChildren(node, data); }
     public Object visit(Call node, Object data) { return visitChildren(node, data); }
-    public Object visit(Read node, Object data) { return visitChildren(node, data); }
 }

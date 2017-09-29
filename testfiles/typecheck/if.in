@@ -1,4 +1,4 @@
-int main(){
+int main(int ii, bool bb){
     int a = 5;
     if(a){
         a = a+1;
@@ -8,4 +8,21 @@ int main(){
     }
     bool t = 5;
     int f = 1;
+    while(isbigger(3,4)){
+        if(bignum(4,5)){
+            return 5;
+        }
+        if (ii) {
+            return 6;
+        }
+        if (bb) {
+            return 7;
+        }
+    }
+}
+bool isbigger(int a, int b){
+    return a>b;
+}
+int bignum(int a, int b) {
+    return a-b;
 }

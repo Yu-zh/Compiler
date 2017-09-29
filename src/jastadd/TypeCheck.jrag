@@ -5,8 +5,8 @@ aspect TypeCheck{
     syn Type Expr.type();
 
     eq IdUse.type() = decl().type();
-
     eq Numeral.type() = new IntType();
+    eq BoolExpr.type() = new BoolType();
     eq BinaryExpr.type() {
         if (getLeft().type() == getRight().type()) {
             return getLeft().type();
@@ -14,10 +14,12 @@ aspect TypeCheck{
         return unknownType();
     }
     eq ComparisonExpr.type() = new BoolType();
-    eq Call.type() = new IntType();
+    eq Call.type() = getFun().decl().type();
 
     inh Type IdDecl.type();
     eq VarDecl.getIdDecl().type() = getType();
+    eq Func.getIdDecl().type() = getType();
+    eq Para.getIdDecl().type() = getType();
 
     eq Program.getChild().expectedType() = unknownType(); //root pattern
     inh Type Expr.expectedType();
@@ -47,6 +49,7 @@ aspect Types{
     eq BoolType.isCompatible(Type other) {
         return other.isCompatibleBool();
     }
+    eq VoidType.isCompatible(Type other) = false;
     eq UnknownType.isCompatible(Type other) = true;
 
     // double dispatch
@@ -58,6 +61,8 @@ aspect Types{
     eq IntType.isCompatibleBool() = false;
     eq BoolType.isCompatibleInt() = false;
     eq BoolType.isCompatibleBool() = true;
+    eq VoidType.isCompatibleInt() = false;
+    eq VoidType.isCompatibleBool() = false;
 }
 
 aspect UnknownType {

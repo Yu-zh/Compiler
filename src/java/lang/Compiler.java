@@ -37,14 +37,16 @@ public class Compiler {
             PrintStream outStream = new PrintStream(bytes);
 			Program program = (Program) parser.parse(scanner);
 //            program.prettyPrint(outStream);
+
 			StringBuilder sb = new StringBuilder();
 			for (ErrorMessage m : program.errors()) {
 				sb.append(m).append("\n");
 			}
 			String actual = sb.toString();
 			System.out.print(actual);
+
 //            System.out.println(MSNVisitor.result(program));
-//            DrAST_root_node = program; //Enable debugging with DrAST
+            DrAST_root_node = program; //Enable debugging with DrAST
 //			System.out.println(program.dumpTree());
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found!");
@@ -54,8 +56,6 @@ public class Compiler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-
 	}
 
 	private static void printUsage() {
