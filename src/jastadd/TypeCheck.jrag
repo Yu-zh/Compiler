@@ -6,55 +6,32 @@ aspect TypeCheck{
 
     eq IdUse.type() = decl().type();
 
-    eq Numeral.type() = intType();
-    inh Type Numeral.intType();
-
+    eq Numeral.type() = new IntType();
     eq BinaryExpr.type() {
         if (getLeft().type() == getRight().type()) {
             return getLeft().type();
         }
         return unknownType();
     }
-    eq ComparisonExpr.type() = boolType();
-    inh Type ComparisonExpr.boolType();
-
-    eq Call.type() = intType();
-    inh Type Call.intType();
+    eq ComparisonExpr.type() = new BoolType();
+    eq Call.type() = new IntType();
 
     inh Type IdDecl.type();
-    eq VarDecl.getIdDecl().type() {
-        String typeString = getType().getString();
-        if (typeString.equals("int")) {
-            return intType();
-        } else if (typeString.equals("bool")) {
-            return boolType();
-        } else {
-            System.out.println("unknown type in vardecl!!!");
-        }
-        return unknownType();
-    }
-    inh Type VarDecl.intType();
-    inh Type VarDecl.boolType();
-
+    eq VarDecl.getIdDecl().type() = getType();
 
     eq Program.getChild().expectedType() = unknownType(); //root pattern
     inh Type Expr.expectedType();
 
-    eq IfStmt.getCond().expectedType() = boolType();
-    inh BoolType IfStmt.boolType();
-    eq WhileStmt.getCond().expectedType() = boolType();
-    inh BoolType WhileStmt.boolType();
+    eq IfStmt.getCond().expectedType() = new BoolType();
+    eq WhileStmt.getCond().expectedType() = new BoolType();
     eq VarDecl.getExpr().expectedType() = getIdDecl().type();
 
     syn boolean Stmt.typeNotCheck() = false;
-    syn boolean IfStmt.typeNotCheck() {
-        boolean result = (!getCond().expectedType().isCompatible(getCond().type())) && (!getCond().type().isUnknownType());
-        return result;
-    }
-    syn boolean WhileStmt.typeNotCheck() = (!getCond().expectedType().isCompatible(getCond().type())) && (!getCond().type().isUnknownType());
+    syn boolean IfStmt.typeNotCheck() = !getCond().expectedType().isCompatible(getCond().type());
+    syn boolean WhileStmt.typeNotCheck() = !getCond().expectedType().isCompatible(getCond().type());
     syn boolean VarDecl.typeNotCheck() {
         if (hasExpr()) {
-            return (!getExpr().expectedType().isCompatible(getExpr().type())) && (!getExpr().type().isUnknownType());
+            return !getExpr().expectedType().isCompatible(getExpr().type());
         } else {
             return false;
         }
@@ -62,15 +39,33 @@ aspect TypeCheck{
 }
 
 aspect Types{
-    syn nta IntType Program.intType() = new IntType();
-    syn nta BoolType Program.boolType() = new BoolType();
+    syn boolean Type.isCompatible(Type other);
 
-    eq Program.getChild().intType() = intType();
-    eq Program.getChild().boolType() = boolType();
+    eq IntType.isCompatible(Type other) {
+        return other.isCompatibleInt();
+    }
+    eq BoolType.isCompatible(Type other) {
+        return other.isCompatibleBool();
+    }
+    eq UnknownType.isCompatible(Type other) = true;
 
-    syn boolean Type.isCompatible(Type other) = true;
-    eq IntType.isCompatible(Type other) = other == intType();
-    inh IntType IntType.intType();
-    eq BoolType.isCompatible(Type other) = other == boolType();
-    inh BoolType BoolType.boolType();
+    // double dispatch
+    syn boolean Type.isCompatibleInt();
+    syn boolean Type.isCompatibleBool();
+    eq UnknownType.isCompatibleInt() = true;
+    eq UnknownType.isCompatibleBool() = true;
+    eq IntType.isCompatibleInt() = true;
+    eq IntType.isCompatibleBool() = false;
+    eq BoolType.isCompatibleInt() = false;
+    eq BoolType.isCompatibleBool() = true;
+}
+
+aspect UnknownType {
+    syn nta UnknownType Program.unknownType() = new UnknownType();
+
+    inh UnknownType ASTNode.unknownType();
+    eq Program.getChild().unknownType() = unknownType();
+
+    syn boolean Type.isUnknownType() = false;
+    eq UnknownType.isUnknownType() = true;
 }

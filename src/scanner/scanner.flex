@@ -44,7 +44,6 @@ Comment = \/\/.*\n
 ")"           { return sym(Terminals.RPARENTHESES); }
 "int"         { return sym(Terminals.INT); }
 "bool"        { return sym(Terminals.BOOL); }
-"void"        { return sym(Terminals.VOID); }
 "="           { return sym(Terminals.ASSIGN); }
 ";"           { return sym(Terminals.SEMI); }
 "+"           { return sym(Terminals.ADD); }
@@ -63,8 +62,6 @@ Comment = \/\/.*\n
 "if"          { return sym(Terminals.IF); }
 "else"        { return sym(Terminals.ELSE); }
 "while"       { return sym(Terminals.WHILE); }
-"true"        { return sym(Terminals.TRUE); }
-"false"       { return sym(Terminals.FALSE); }
 {Comment}     {}
 {ID}          { return sym(Terminals.ID); }
 {Numeral}     { return sym(Terminals.NUMERAL); }

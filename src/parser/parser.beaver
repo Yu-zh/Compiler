@@ -145,8 +145,8 @@ expr_list =
 id_use = ID.id {: return new IdUse(id); :} ;
 id_decl = ID.id {: return new IdDecl(id); :};
 
-type_int = INT.i {: return new Type(i); :};
-type_bool = BOOL.i {: return new Type(i); :};
+type_int = INT {: return new IntType(); :};
+type_bool = BOOL {: return new BoolType(); :};
 type =
     type_int
     |   type_bool;

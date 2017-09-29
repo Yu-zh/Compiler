@@ -1,0 +1,12 @@
+int f(int a, int b){
+    return a+b;
+}
+int main(){
+    int p = f(1,2);
+    int q = f(1);
+    int r = f(1,2,3);
+    print();
+    print(r);
+    int s = read();
+    int z = read(5);
+}

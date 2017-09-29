@@ -1,0 +1,4 @@
+Error at line 5: symbol 'c' is not declared
+Error at line 8: symbol 'd' is not declared
+Error at line 11: symbol 'e' is not declared
+Error at line 13: symbol 'fun' is not declared

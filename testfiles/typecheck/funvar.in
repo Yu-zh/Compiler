@@ -1,0 +1,10 @@
+int g(){
+    return 5;
+}
+int f(){
+    int b = 5;
+    int c = g();
+    int d = g;
+    int e = b();
+    int i = b;
+}

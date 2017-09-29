@@ -1,7 +1,0 @@
-int main(){
-    int a;
-// a in an integer
-// this is a comment
-    a = 5;
-    return a;
-}

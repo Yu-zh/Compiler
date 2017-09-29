@@ -1,0 +1,14 @@
+int main(int a, int b) {
+    if (a<b) {
+        int d;
+        int e;
+        return c;
+    } else {
+        int c;
+        return d;
+    }
+    while(a<b){
+        a=a+e;
+    }
+    int f = fun(a,b);
+}

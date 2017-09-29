@@ -1,0 +1,16 @@
+int foo(){
+    int f = main(1,2);
+}
+int main(int a, int b) {
+    if ( a < b ) {
+        int c = 5;
+        return (a+b+c);
+    } else {
+        int d = 6;
+        return (a+d);
+    }
+    int c = 5;
+    while( a < b ){
+        a = a + c;
+    }
+}
