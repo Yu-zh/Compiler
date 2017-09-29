@@ -35,7 +35,7 @@ Call : Expr ::= Fun:IdUse Expr*;
 IdDecl ::= <ID>;
 
 UnknownDecl : IdDecl;
-PreFuncDecl : IdDecl;
+PreFunc : Func;
 
 Type ::= <String>;
 IntType : Type;

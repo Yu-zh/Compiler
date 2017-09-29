@@ -82,9 +82,9 @@ aspect NameAnalysis {
     eq Call.getFun().lookup(String name) = lookupFunc(name);
     inh IdDecl Call.lookupFunc(String name);
     eq Program.getChild().lookupFunc(String name) {
-        for (PreFuncDecl pfd : preFunc()) {
-            if (pfd.getID().equals(name)) {
-                return pfd;
+        for (PreFunc pf : preFunc()) {
+            if (pf.getIdDecl().getID().equals(name)) {
+                return pf.getIdDecl();
             }
         }
         /*for (int i = 0; i < preFunc().getNumPreFuncDecl(); i++) {
@@ -118,10 +118,10 @@ aspect NameAnalysis {
         return getPara(index).getIdDecl();
     }
 
-    syn nta List<PreFuncDecl> Program.preFunc() {
-        List<PreFuncDecl> plist = new List<PreFuncDecl>();
-        plist.add(new PreFuncDecl("read"));
-        plist.add(new PreFuncDecl("print"));
+    syn nta List<PreFunc> Program.preFunc() {
+        List<PreFunc> plist = new List<PreFunc>();
+        plist.add(new PreFunc(new IdDecl("read"), new List(), new List()));
+        plist.add(new PreFunc(new IdDecl("print"), new List().add(new Para(new IdDecl("output"))), new List()));
         return plist;
     }
 

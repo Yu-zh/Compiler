@@ -52,7 +52,13 @@ aspect TypeCheck{
         return result;
     }
     syn boolean WhileStmt.typeNotCheck() = (!getCond().expectedType().isCompatible(getCond().type())) && (!getCond().type().isUnknownType());
-    syn boolean VarDecl.typeNotCheck() = (!getExpr().expectedType().isCompatible(getExpr().type())) && (!getExpr().type().isUnknownType());
+    syn boolean VarDecl.typeNotCheck() {
+        if (hasExpr()) {
+            return (!getExpr().expectedType().isCompatible(getExpr().type())) && (!getExpr().type().isUnknownType());
+        } else {
+            return false;
+        }
+    }
 }
 
 aspect Types{

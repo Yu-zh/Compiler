@@ -35,7 +35,7 @@
 %typeof para = "Para";
 %typeof if_stmt = "IfStmt";
 %typeof while_stmt = "WhileStmt";
-%typeof call = "Expr";
+%typeof call = "Call";
 %typeof funccallstmt = "Stmt";
 %typeof expr_list = "List";
 %typeof type = "Type";
@@ -96,7 +96,7 @@ decl_opt =
     |   ASSIGN expr.a {: return new Opt(a); :};
 
 funccallstmt =
-    id_use.a LPARENTHESES expr_list.b RPARENTHESES SEMI {: return new FuncCallStmt(new Call(a,b)); :};
+    call.a SEMI {: return new FuncCallStmt(a); :};
 
 
 expr =

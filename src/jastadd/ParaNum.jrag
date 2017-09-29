@@ -2,9 +2,13 @@ aspect ParaNum{
     inh int IdDecl.function();
 
     eq Func.getIdDecl().function() = getNumPara();
-    // how to add attr to pre func ??
 
     inh boolean IdUse.isNotMatch();
-
-    eq Call.getFun().isNotMatch() = getNumExpr() != getFun().decl().function();
+    eq Call.getFun().isNotMatch() {
+        if (getFun().decl().isUnknown()) {
+            return false;
+        } else {
+            return getNumExpr() != getFun().decl().function();
+        }
+    }
 }
