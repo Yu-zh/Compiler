@@ -5,9 +5,10 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:39
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/lang.ast:39
  * @astdecl IdDecl : ASTNode ::= <ID:String>;
  * @production IdDecl : {@link ASTNode} ::= <span class="component">&lt;ID:String&gt;</span>;
 
@@ -15,14 +16,14 @@ import java.util.TreeSet;
 public class IdDecl extends ASTNode<ASTNode> implements Cloneable {
   /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:210
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:210
    */
   public void prettyPrint(PrintStream out, String ind) {
 		out.print(getID());
 	}
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:46
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Visitor.jrag:46
    */
   public Object accept(Visitor visitor, Object data) {
 		return visitor.visit(this, data);
@@ -201,10 +202,10 @@ protected boolean isMultiDeclared_visited = false;
   /**
    * @attribute syn
    * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:103
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:103
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:103")
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:103")
   public boolean isMultiDeclared() {
     if (isMultiDeclared_visited) {
       throw new RuntimeException("Circular definition of attribute IdDecl.isMultiDeclared().");
@@ -224,10 +225,10 @@ protected boolean isUnknown_visited = false;
   /**
    * @attribute syn
    * @aspect UnknownDecl
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:7
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:7
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:7")
+  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:7")
   public boolean isUnknown() {
     if (isUnknown_visited) {
       throw new RuntimeException("Circular definition of attribute IdDecl.isUnknown().");
@@ -239,11 +240,29 @@ protected boolean isUnknown_visited = false;
   }
   /**
    * @attribute inh
-   * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:201
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101")
+  @ASTNodeAnnotation.Source(aspect="Interpreter", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:201")
+  public String uniqueName() {
+    if (uniqueName_visited) {
+      throw new RuntimeException("Circular definition of attribute IdDecl.uniqueName().");
+    }
+    uniqueName_visited = true;
+    String uniqueName_value = getParent().Define_uniqueName(this, null);
+    uniqueName_visited = false;
+    return uniqueName_value;
+  }
+/** @apilevel internal */
+protected boolean uniqueName_visited = false;
+  /**
+   * @attribute inh
+   * @aspect NameAnalysis
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101")
   public IdDecl lookup(String name) {
     Object _parameters = name;
     if (lookup_String_visited == null) lookup_String_visited = new java.util.HashSet(4);
@@ -260,10 +279,10 @@ protected java.util.Set lookup_String_visited;
   /**
    * @attribute inh
    * @aspect ParaNum
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:2
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/ParaNum.jrag:2
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="ParaNum", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:2")
+  @ASTNodeAnnotation.Source(aspect="ParaNum", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/ParaNum.jrag:2")
   public int function() {
     if (function_visited) {
       throw new RuntimeException("Circular definition of attribute IdDecl.function().");
@@ -278,10 +297,10 @@ protected boolean function_visited = false;
   /**
    * @attribute inh
    * @aspect TypeCheck
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19")
+  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19")
   public Type type() {
     if (type_visited) {
       throw new RuntimeException("Circular definition of attribute IdDecl.type().");
@@ -295,7 +314,7 @@ protected boolean function_visited = false;
 protected boolean type_visited = false;
   /** @apilevel internal */
   protected void collect_contributors_Program_errors(Program _root, java.util.Map<ASTNode, java.util.Set<ASTNode>> _map) {
-    // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:38
+    // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:38
     if (isMultiDeclared()) {
       {
         Program target = (Program) (program());

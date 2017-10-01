@@ -5,14 +5,22 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:6
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/lang.ast:6
  * @astdecl Stmt : ASTNode;
  * @production Stmt : {@link ASTNode};
 
  */
 public abstract class Stmt extends ASTNode<ASTNode> implements Cloneable {
+  /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:25
+   */
+  public void eval(ActivationRecord actrec) throws ReturnException{
+        System.out.println("eval stmt");
+    }
   /**
    * @declaredat ASTNode:1
    */
@@ -85,10 +93,10 @@ protected boolean typeNotCheck_visited = false;
   /**
    * @attribute syn
    * @aspect TypeCheck
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:31
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:31
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:31")
+  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:31")
   public boolean typeNotCheck() {
     if (typeNotCheck_visited) {
       throw new RuntimeException("Circular definition of attribute Stmt.typeNotCheck().");
@@ -98,9 +106,27 @@ protected boolean typeNotCheck_visited = false;
     typeNotCheck_visited = false;
     return typeNotCheck_value;
   }
+  /**
+   * @attribute inh
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:202
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="Interpreter", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:202")
+  public String index() {
+    if (index_visited) {
+      throw new RuntimeException("Circular definition of attribute Stmt.index().");
+    }
+    index_visited = true;
+    String index_value = getParent().Define_index(this, null);
+    index_visited = false;
+    return index_value;
+  }
+/** @apilevel internal */
+protected boolean index_visited = false;
   /** @apilevel internal */
   protected void collect_contributors_Program_errors(Program _root, java.util.Map<ASTNode, java.util.Set<ASTNode>> _map) {
-    // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:46
+    // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:46
     if (typeNotCheck()) {
       {
         Program target = (Program) (program());

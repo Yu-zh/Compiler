@@ -5,17 +5,44 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:33
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/lang.ast:33
  * @astdecl Call : Expr ::= Fun:IdUse Expr*;
  * @production Call : {@link Expr} ::= <span class="component">Fun:{@link IdUse}</span> <span class="component">{@link Expr}*</span>;
 
  */
 public class Call extends Expr implements Cloneable {
   /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:117
+   */
+  public int eval(ActivationRecord actrec) {
+        for (Func f : getFuncList()) {
+            if(f.getIdDecl().getID().equals(getFun().getID())) {
+                ActivationRecord newActrec = new ActivationRecord();
+                for (int i = 0; i < getNumExpr(); i++) {
+                    newActrec.setRecValue(f.getPara(i).getIdDecl().getID(), getExpr(i).eval(actrec));
+                }
+                try {
+                    f.eval(newActrec);
+                } catch (ReturnVoidException e) {
+                    return 0;
+                } catch (ReturnException e) {
+                    return e.getValue();
+                }
+            }
+        }
+        if (getFun().getID().equals("print")) {
+            System.out.println(getExpr(0).eval(actrec));
+            return 1;
+        }
+        throw new RuntimeException("no method found " + getFun().getID());
+    }
+  /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:122
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:122
    */
   public void prettyPrint(PrintStream out, String ind) {
         getFun().prettyPrint(out, ind);
@@ -32,7 +59,7 @@ public class Call extends Expr implements Cloneable {
     }
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:106
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Visitor.jrag:106
    */
   public Object accept(Visitor visitor, Object data) {
     	return visitor.visit(this, data);
@@ -306,10 +333,10 @@ protected boolean type_visited = false;
   /**
    * @attribute syn
    * @aspect TypeCheck
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:5
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:5
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:5")
+  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:5")
   public Type type() {
     if (type_visited) {
       throw new RuntimeException("Circular definition of attribute Expr.type().");
@@ -321,11 +348,29 @@ protected boolean type_visited = false;
   }
   /**
    * @attribute inh
-   * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:139
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83")
+  @ASTNodeAnnotation.Source(aspect="Interpreter", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:139")
+  public List<Func> getFuncList() {
+    if (getFuncList_visited) {
+      throw new RuntimeException("Circular definition of attribute Call.getFuncList().");
+    }
+    getFuncList_visited = true;
+    List<Func> getFuncList_value = getParent().Define_getFuncList(this, null);
+    getFuncList_visited = false;
+    return getFuncList_value;
+  }
+/** @apilevel internal */
+protected boolean getFuncList_visited = false;
+  /**
+   * @attribute inh
+   * @aspect NameAnalysis
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83")
   public IdDecl lookupFunc(String name) {
     Object _parameters = name;
     if (lookupFunc_String_visited == null) lookupFunc_String_visited = new java.util.HashSet(4);
@@ -340,12 +385,12 @@ protected boolean type_visited = false;
 /** @apilevel internal */
 protected java.util.Set lookupFunc_String_visited;
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
    * @apilevel internal
    */
   public IdDecl Define_lookup(ASTNode _callerNode, ASTNode _childNode, String name) {
     if (_callerNode == getFunNoTransform()) {
-      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:82
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:82
       return lookupFunc(name);
     }
     else {
@@ -353,7 +398,7 @@ protected java.util.Set lookupFunc_String_visited;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute lookup
    */
@@ -361,12 +406,12 @@ protected java.util.Set lookupFunc_String_visited;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:6
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/ParaNum.jrag:6
    * @apilevel internal
    */
   public boolean Define_isNotMatch(ASTNode _callerNode, ASTNode _childNode) {
     if (_callerNode == getFunNoTransform()) {
-      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:7
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/ParaNum.jrag:7
       {
               if (getFun().decl().isUnknown()) {
                   return false;
@@ -380,7 +425,7 @@ protected java.util.Set lookupFunc_String_visited;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:6
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/ParaNum.jrag:6
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute isNotMatch
    */
@@ -389,7 +434,7 @@ protected java.util.Set lookupFunc_String_visited;
   }
   /** @apilevel internal */
   protected void collect_contributors_Program_errors(Program _root, java.util.Map<ASTNode, java.util.Set<ASTNode>> _map) {
-    // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:58
+    // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:58
     if (getFun().isNotMatch()) {
       {
         Program target = (Program) (program());

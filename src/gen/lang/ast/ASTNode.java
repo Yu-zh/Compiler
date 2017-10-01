@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.*;
 /**
  * @ast node
  * @astdecl ASTNode;
@@ -14,12 +15,12 @@ import java.util.TreeSet;
 public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneable {
   /**
    * @aspect DumpTree
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/DumpTree.jrag:9
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/DumpTree.jrag:9
    */
   private static final String DUMP_TREE_INDENT = "  ";
   /**
    * @aspect DumpTree
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/DumpTree.jrag:11
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/DumpTree.jrag:11
    */
   public String dumpTree() {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -28,7 +29,7 @@ public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneab
 	}
   /**
    * @aspect DumpTree
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/DumpTree.jrag:17
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/DumpTree.jrag:17
    */
   public void dumpTree(PrintStream out) {
 		dumpTree(out, "");
@@ -36,7 +37,7 @@ public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneab
 	}
   /**
    * @aspect DumpTree
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/DumpTree.jrag:22
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/DumpTree.jrag:22
    */
   public void dumpTree(PrintStream out, String indent) {
 		out.print(indent + getClass().getSimpleName());
@@ -52,7 +53,7 @@ public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneab
 	}
   /**
    * @aspect DumpTree
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/DumpTree.jrag:35
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/DumpTree.jrag:35
    */
   public String getTokens() {
 		java.util.TreeSet<java.lang.reflect.Method> methods = new java.util.TreeSet<>(
@@ -79,14 +80,14 @@ public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneab
 	}
   /**
    * @aspect Errors
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:22
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:22
    */
   protected ErrorMessage error(String message) {
 		return new ErrorMessage(message, getLine(getStart()));
 	}
   /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:4
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:4
    */
   public void prettyPrint(PrintStream out) {
         prettyPrint(out,"");
@@ -94,7 +95,7 @@ public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneab
     }
   /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:9
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:9
    */
   public void prettyPrint(PrintStream out, String ind) {
         for (int i = 0; i < getNumChild(); ++i) {
@@ -103,7 +104,7 @@ public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneab
     }
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:31
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Visitor.jrag:31
    */
   public Object accept(Visitor visitor, Object data) {
 		throw new Error("Visitor: accept method not available for " + getClass().getName());
@@ -500,7 +501,7 @@ public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneab
   }
   /**
    * @aspect <NoAspect>
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:26
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:26
    */
     /** @apilevel internal */
   protected void collect_contributors_Program_errors(Program _root, java.util.Map<ASTNode, java.util.Set<ASTNode>> _map) {
@@ -515,10 +516,10 @@ public class ASTNode<T extends ASTNode> extends beaver.Symbol implements Cloneab
   /**
    * @attribute inh
    * @aspect Errors
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:28
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:28
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="Errors", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:28")
+  @ASTNodeAnnotation.Source(aspect="Errors", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:28")
   public Program program() {
     if (program_visited) {
       throw new RuntimeException("Circular definition of attribute ASTNode.program().");
@@ -533,10 +534,10 @@ protected boolean program_visited = false;
   /**
    * @attribute inh
    * @aspect UnknownType
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:71
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:72
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="UnknownType", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:71")
+  @ASTNodeAnnotation.Source(aspect="UnknownType", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:72")
   public UnknownType unknownType() {
     if (unknownType_visited) {
       throw new RuntimeException("Circular definition of attribute ASTNode.unknownType().");
@@ -551,10 +552,10 @@ protected boolean unknownType_visited = false;
   /**
    * @attribute inh
    * @aspect UnknownDecl
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4")
+  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4")
   public UnknownDecl unknownDecl() {
     if (unknownDecl_visited) {
       throw new RuntimeException("Circular definition of attribute ASTNode.unknownDecl().");
@@ -579,11 +580,31 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:29
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:29
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute program
    */
   protected boolean canDefine_program(ASTNode _callerNode, ASTNode _childNode) {
+    return false;
+  }
+  /** @apilevel internal */
+  public List<Func> Define_getFuncList(ASTNode _callerNode, ASTNode _childNode) {
+    ASTNode self = this;
+    ASTNode parent = getParent();
+    while (parent != null && !parent.canDefine_getFuncList(self, _callerNode)) {
+      _callerNode = self;
+      self = parent;
+      parent = self.getParent();
+    }
+    return parent.Define_getFuncList(self, _callerNode);
+  }
+
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:140
+   * @apilevel internal
+   * @return {@code true} if this node has an equation for the inherited attribute getFuncList
+   */
+  protected boolean canDefine_getFuncList(ASTNode _callerNode, ASTNode _childNode) {
     return false;
   }
   /** @apilevel internal */
@@ -599,7 +620,7 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:82
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:82
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute lookup
    */
@@ -619,7 +640,7 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:84
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:84
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute lookupFunc
    */
@@ -639,7 +660,7 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:20
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:20
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute type
    */
@@ -659,7 +680,7 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:28
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:28
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute expectedType
    */
@@ -679,7 +700,7 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:72
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:73
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute unknownType
    */
@@ -699,11 +720,31 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:5
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:5
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute unknownDecl
    */
   protected boolean canDefine_unknownDecl(ASTNode _callerNode, ASTNode _childNode) {
+    return false;
+  }
+  /** @apilevel internal */
+  public String Define_index(ASTNode _callerNode, ASTNode _childNode) {
+    ASTNode self = this;
+    ASTNode parent = getParent();
+    while (parent != null && !parent.canDefine_index(self, _callerNode)) {
+      _callerNode = self;
+      self = parent;
+      parent = self.getParent();
+    }
+    return parent.Define_index(self, _callerNode);
+  }
+
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:206
+   * @apilevel internal
+   * @return {@code true} if this node has an equation for the inherited attribute index
+   */
+  protected boolean canDefine_index(ASTNode _callerNode, ASTNode _childNode) {
     return false;
   }
   /** @apilevel internal */
@@ -719,11 +760,31 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:4
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/ParaNum.jrag:4
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute function
    */
   protected boolean canDefine_function(ASTNode _callerNode, ASTNode _childNode) {
+    return false;
+  }
+  /** @apilevel internal */
+  public String Define_uniqueName(ASTNode _callerNode, ASTNode _childNode) {
+    ASTNode self = this;
+    ASTNode parent = getParent();
+    while (parent != null && !parent.canDefine_uniqueName(self, _callerNode)) {
+      _callerNode = self;
+      self = parent;
+      parent = self.getParent();
+    }
+    return parent.Define_uniqueName(self, _callerNode);
+  }
+
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:207
+   * @apilevel internal
+   * @return {@code true} if this node has an equation for the inherited attribute uniqueName
+   */
+  protected boolean canDefine_uniqueName(ASTNode _callerNode, ASTNode _childNode) {
     return false;
   }
   /** @apilevel internal */
@@ -739,7 +800,7 @@ protected boolean unknownDecl_visited = false;
   }
 
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:7
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/ParaNum.jrag:7
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute isNotMatch
    */

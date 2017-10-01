@@ -5,17 +5,31 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:11
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/lang.ast:11
  * @astdecl WhileStmt : Stmt ::= Cond:Expr Body:Stmt*;
  * @production WhileStmt : {@link Stmt} ::= <span class="component">Cond:{@link Expr}</span> <span class="component">Body:{@link Stmt}*</span>;
 
  */
 public class WhileStmt extends Stmt implements Cloneable {
   /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:57
+   */
+  public void eval(ActivationRecord actrec) throws ReturnException{
+        int cond = getCond().eval(actrec);
+        while(cond == 1) {
+            for (Stmt s : getBodyList()) {
+                s.eval(actrec);
+            }
+            cond = getCond().eval(actrec);
+        }
+    }
+  /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:101
    */
   public void prettyPrint(PrintStream out, String ind) {
         out.print("while ");
@@ -39,7 +53,7 @@ public class WhileStmt extends Stmt implements Cloneable {
     }
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:70
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Visitor.jrag:70
    */
   public Object accept(Visitor visitor, Object data) {
     	return visitor.visit(this, data);
@@ -313,10 +327,10 @@ protected java.util.Set localLookup_String_int_visited;
   /**
    * @attribute syn
    * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:69
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:69
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:69")
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:69")
   public IdDecl localLookup(String name, int until) {
     java.util.List _parameters = new java.util.ArrayList(2);
     _parameters.add(name);
@@ -346,10 +360,10 @@ protected boolean typeNotCheck_visited = false;
   /**
    * @attribute syn
    * @aspect TypeCheck
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:33
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:33
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:33")
+  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:33")
   public boolean typeNotCheck() {
     if (typeNotCheck_visited) {
       throw new RuntimeException("Circular definition of attribute WhileStmt.typeNotCheck().");
@@ -362,10 +376,10 @@ protected boolean typeNotCheck_visited = false;
   /**
    * @attribute inh
    * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:80
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:80
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:80")
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:80")
   public IdDecl lookup(String name) {
     Object _parameters = name;
     if (lookup_String_visited == null) lookup_String_visited = new java.util.HashSet(4);
@@ -380,12 +394,34 @@ protected boolean typeNotCheck_visited = false;
 /** @apilevel internal */
 protected java.util.Set lookup_String_visited;
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:202
+   * @apilevel internal
+   */
+  public String Define_index(ASTNode _callerNode, ASTNode _childNode) {
+    if (_callerNode == getBodyListNoTransform()) {
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:206
+      int i = _callerNode.getIndexOfChild(_childNode);
+      return Integer.toString(i) + "_" + index();
+    }
+    else {
+      return getParent().Define_index(this, _callerNode);
+    }
+  }
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:202
+   * @apilevel internal
+   * @return {@code true} if this node has an equation for the inherited attribute index
+   */
+  protected boolean canDefine_index(ASTNode _callerNode, ASTNode _childNode) {
+    return true;
+  }
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
    * @apilevel internal
    */
   public IdDecl Define_lookup(ASTNode _callerNode, ASTNode _childNode, String name) {
     if (_callerNode == getBodyListNoTransform()) {
-      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:65
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:65
       int index = _callerNode.getIndexOfChild(_childNode);
       {
               IdDecl decl = localLookup(name, index);
@@ -397,7 +433,7 @@ protected java.util.Set lookup_String_visited;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute lookup
    */
@@ -405,12 +441,12 @@ protected java.util.Set lookup_String_visited;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
    * @apilevel internal
    */
   public Type Define_expectedType(ASTNode _callerNode, ASTNode _childNode) {
     if (_callerNode == getCondNoTransform()) {
-      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:28
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:28
       return new BoolType();
     }
     else {
@@ -418,7 +454,7 @@ protected java.util.Set lookup_String_visited;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute expectedType
    */

@@ -5,17 +5,30 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:7
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/lang.ast:7
  * @astdecl VarDecl : Stmt ::= Type IdDecl [Expr];
  * @production VarDecl : {@link Stmt} ::= <span class="component">{@link Type}</span> <span class="component">{@link IdDecl}</span> <span class="component">[{@link Expr}]</span>;
 
  */
 public class VarDecl extends Stmt implements Cloneable {
   /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:28
+   */
+  public void eval(ActivationRecord actrec) {
+        if (hasExpr()) {
+            int e = getExpr().eval(actrec);
+            actrec.setRecValue(getIdDecl().uniqueName(), e);
+        } else {
+            actrec.setRecValue(getIdDecl().uniqueName(), 0);
+        }
+    }
+  /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:45
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:45
    */
   public void prettyPrint(PrintStream out, String ind) {
         out.print("int ");
@@ -27,7 +40,7 @@ public class VarDecl extends Stmt implements Cloneable {
     }
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:58
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Visitor.jrag:58
    */
   public Object accept(Visitor visitor, Object data) {
 		return visitor.visit(this, data);
@@ -269,10 +282,10 @@ protected boolean typeNotCheck_visited = false;
   /**
    * @attribute syn
    * @aspect TypeCheck
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:34
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:34
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:34")
+  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:34")
   public boolean typeNotCheck() {
     if (typeNotCheck_visited) {
       throw new RuntimeException("Circular definition of attribute VarDecl.typeNotCheck().");
@@ -290,12 +303,33 @@ protected boolean typeNotCheck_visited = false;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:201
+   * @apilevel internal
+   */
+  public String Define_uniqueName(ASTNode _callerNode, ASTNode _childNode) {
+    if (_callerNode == getIdDeclNoTransform()) {
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:207
+      return index() + getIdDecl().getID();
+    }
+    else {
+      return getParent().Define_uniqueName(this, _callerNode);
+    }
+  }
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:201
+   * @apilevel internal
+   * @return {@code true} if this node has an equation for the inherited attribute uniqueName
+   */
+  protected boolean canDefine_uniqueName(ASTNode _callerNode, ASTNode _childNode) {
+    return true;
+  }
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
    * @apilevel internal
    */
   public Type Define_type(ASTNode _callerNode, ASTNode _childNode) {
     if (_callerNode == getIdDeclNoTransform()) {
-      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:20
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:20
       return getType();
     }
     else {
@@ -303,7 +337,7 @@ protected boolean typeNotCheck_visited = false;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute type
    */
@@ -311,12 +345,12 @@ protected boolean typeNotCheck_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
    * @apilevel internal
    */
   public Type Define_expectedType(ASTNode _callerNode, ASTNode _childNode) {
     if (_callerNode == getExprOptNoTransform()) {
-      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:29
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:29
       return getIdDecl().type();
     }
     else {
@@ -324,7 +358,7 @@ protected boolean typeNotCheck_visited = false;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute expectedType
    */

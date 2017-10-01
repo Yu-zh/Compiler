@@ -1,0 +1,209 @@
+import java.util.*;
+
+aspect Interpreter{
+    syn Func Program.main() {
+        for (Func f : getFuncList()) {
+            if(f.getIdDecl().getID().equals("main")) {
+                return f;
+            }
+        }
+        throw new RuntimeException("no main method found");
+    }
+    public void Program.eval(){
+        try{
+            main().eval(new ActivationRecord());
+        } catch (ReturnException e) {
+
+        }
+    }
+    public int Func.eval(ActivationRecord actrec) throws ReturnException{
+        for (Stmt s : getStmtList()) {
+            s.eval(actrec);
+        }
+        return 0;
+    }
+    public void Stmt.eval(ActivationRecord actrec) throws ReturnException{
+        System.out.println("eval stmt");
+    }
+    public void VarDecl.eval(ActivationRecord actrec) {
+        if (hasExpr()) {
+            int e = getExpr().eval(actrec);
+            actrec.setRecValue(getIdDecl().uniqueName(), e);
+        } else {
+            actrec.setRecValue(getIdDecl().uniqueName(), 0);
+        }
+    }
+    public void Assign.eval(ActivationRecord actrec) {
+        int e = getExpr().eval(actrec);
+        actrec.setRecValue(getIdUse().decl().uniqueName(), e);
+    }
+    public void FuncCallStmt.eval(ActivationRecord actrec) {
+        getCall().eval(actrec);
+    }
+    public void IfStmt.eval(ActivationRecord actrec) throws ReturnException{
+        int cond = getCond().eval(actrec);
+        if (cond == 1) {
+            for (Stmt s : getBodyList()) {
+                s.eval(actrec);
+            }
+        } else if (cond == 0) {
+            for (Stmt s : getElseList()) {
+                s.eval(actrec);
+            }
+        } else {
+            throw new RuntimeException("if stmt cond is not boolean!");
+        }
+    }
+    public void WhileStmt.eval(ActivationRecord actrec) throws ReturnException{
+        int cond = getCond().eval(actrec);
+        while(cond == 1) {
+            for (Stmt s : getBodyList()) {
+                s.eval(actrec);
+            }
+            cond = getCond().eval(actrec);
+        }
+    }
+    public void Return.eval(ActivationRecord actrec) throws ReturnException{
+        if (hasExpr()) {
+            throw new ReturnException(getExpr().eval(actrec));
+        } else {
+            throw new ReturnVoidException();
+        }
+    }
+
+    public int Expr.eval(ActivationRecord actrec){
+        System.out.println("eval expr");
+        return 0;
+    }
+    public int Add.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) + getRight().eval(actrec);
+    }
+    public int Min.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) - getRight().eval(actrec);
+    }
+    public int Mul.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) * getRight().eval(actrec);
+    }
+    public int Div.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) / getRight().eval(actrec);
+    }
+    public int Mod.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) % getRight().eval(actrec);
+    }
+    public int Gt.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) > getRight().eval(actrec) ? 1 : 0;
+    }
+    public int Ge.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) >= getRight().eval(actrec) ? 1 : 0;
+    }
+    public int Lt.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) < getRight().eval(actrec) ? 1 : 0;
+    }
+    public int Le.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) <= getRight().eval(actrec) ? 1 : 0;
+    }
+    public int Eq.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) == getRight().eval(actrec) ? 1 : 0;
+    }
+    public int Neq.eval(ActivationRecord actrec) {
+        return getLeft().eval(actrec) != getRight().eval(actrec) ? 1 : 0;
+    }
+    public int Numeral.eval(ActivationRecord actrec) {
+        return Integer.valueOf(getNUMERAL());
+    }
+    public int IdUse.eval(ActivationRecord actrec) {
+        return actrec.getRecValue(decl().uniqueName());
+    }
+    public int Call.eval(ActivationRecord actrec) {
+        for (Func f : getFuncList()) {
+            if(f.getIdDecl().getID().equals(getFun().getID())) {
+                ActivationRecord newActrec = new ActivationRecord();
+                for (int i = 0; i < getNumExpr(); i++) {
+                    newActrec.setRecValue(f.getPara(i).getIdDecl().getID(), getExpr(i).eval(actrec));
+                }
+                try {
+                    f.eval(newActrec);
+                } catch (ReturnVoidException e) {
+                    return 0;
+                } catch (ReturnException e) {
+                    return e.getValue();
+                }
+            }
+        }
+        if (getFun().getID().equals("print")) {
+            System.out.println(getExpr(0).eval(actrec));
+            return 1;
+        }
+        throw new RuntimeException("no method found " + getFun().getID());
+    }
+    inh List<Func> Call.getFuncList();
+    eq Program.getChild().getFuncList() = getFuncList();
+
+
+    public class ActivationRecord{
+        class Record{
+            private String name;
+            private int value;
+
+            public Record(String name, int value) {
+                this.name = name;
+                this.value = value;
+            }
+
+            public int getValue() {
+                return value;
+            }
+            public String getName() {
+                return name;
+            }
+            public void setValue(int value) {
+                this.value = value;
+            }
+        }
+
+        ArrayList<Record> actRec  = new ArrayList<Record>();
+
+        public int getRecValue(String name) {
+            for (Record r : actRec) {
+                if (r.getName().equals(name)) {
+                    return r.getValue();
+                }
+            }
+            throw new RuntimeException(name);
+        }
+
+        public void setRecValue(String name, int value) {
+            for (Record r : actRec) {
+                if (r.getName().equals(name)) {
+                    r.setValue(value);
+                }
+            }
+            actRec.add(new Record(name, value));
+        }
+
+    }
+
+    public class ReturnException extends Exception {
+        private int value;
+        public ReturnException(int value) {
+            this.value = value;
+        }
+        public int getValue() {
+            return value;
+        }
+    }
+    public class ReturnVoidException extends ReturnException {
+        public ReturnVoidException(){
+            super(0);
+        }
+    }
+
+    inh String IdDecl.uniqueName();
+    inh String Stmt.index();
+    eq Func.getStmt(int i).index() = Integer.toString(i);
+    eq IfStmt.getBody(int i).index() = Integer.toString(i) + "_" + index();
+    eq IfStmt.getElse(int i).index() = Integer.toString(i) + "_" + index();
+    eq WhileStmt.getBody(int i).index() = Integer.toString(i) + "_" + index();
+    eq VarDecl.getIdDecl().uniqueName() = index() + getIdDecl().getID();
+    eq Para.getIdDecl().uniqueName() = getIdDecl().getID();
+}

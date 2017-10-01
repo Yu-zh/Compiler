@@ -5,17 +5,29 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:1
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/lang.ast:1
  * @astdecl Program : ASTNode ::= Func*;
  * @production Program : {@link ASTNode} ::= <span class="component">{@link Func}*</span>;
 
  */
 public class Program extends ASTNode<ASTNode> implements Cloneable {
   /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:12
+   */
+  public void eval(){
+        try{
+            main().eval(new ActivationRecord());
+        } catch (ReturnException e) {
+
+        }
+    }
+  /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:40
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Visitor.jrag:40
    */
   public Object accept(Visitor visitor, Object data) {
 		return visitor.visit(this, data);
@@ -267,7 +279,7 @@ public class Program extends ASTNode<ASTNode> implements Cloneable {
   }
   /**
    * @aspect <NoAspect>
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:26
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:26
    */
   /** @apilevel internal */
 protected java.util.Map<ASTNode, java.util.Set<ASTNode>> contributorMap_Program_errors = null;
@@ -280,6 +292,32 @@ protected java.util.Map<ASTNode, java.util.Set<ASTNode>> contributorMap_Program_
     }
   }
 
+/** @apilevel internal */
+protected boolean main_visited = false;
+  /**
+   * @attribute syn
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:4
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
+  @ASTNodeAnnotation.Source(aspect="Interpreter", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:4")
+  public Func main() {
+    if (main_visited) {
+      throw new RuntimeException("Circular definition of attribute Program.main().");
+    }
+    main_visited = true;
+    try {
+            for (Func f : getFuncList()) {
+                if(f.getIdDecl().getID().equals("main")) {
+                    return f;
+                }
+            }
+            throw new RuntimeException("no main method found");
+        }
+    finally {
+      main_visited = false;
+    }
+  }
 /** @apilevel internal */
 protected boolean preFunc_visited = false;
   /** @apilevel internal */
@@ -298,10 +336,10 @@ protected boolean preFunc_visited = false;
   /**
    * @attribute syn
    * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:121
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:121
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN, isNTA=true)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:121")
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:121")
   public List<PreFunc> preFunc() {
     ASTState state = state();
     if (preFunc_computed) {
@@ -344,10 +382,10 @@ protected boolean unknownType_visited = false;
   /**
    * @attribute syn
    * @aspect UnknownType
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:69
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:70
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN, isNTA=true)
-  @ASTNodeAnnotation.Source(aspect="UnknownType", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:69")
+  @ASTNodeAnnotation.Source(aspect="UnknownType", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:70")
   public UnknownType unknownType() {
     ASTState state = state();
     if (unknownType_computed) {
@@ -383,10 +421,10 @@ protected boolean unknownDecl_visited = false;
   /**
    * @attribute syn
    * @aspect UnknownDecl
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:2
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:2
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN, isNTA=true)
-  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:2")
+  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:2")
   public UnknownDecl unknownDecl() {
     ASTState state = state();
     if (unknownDecl_computed) {
@@ -405,7 +443,7 @@ protected boolean unknownDecl_visited = false;
     return unknownDecl_value;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:28
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:28
    * @apilevel internal
    */
   public Program Define_program(ASTNode _callerNode, ASTNode _childNode) {
@@ -413,7 +451,7 @@ protected boolean unknownDecl_visited = false;
     return this;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:28
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:28
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute program
    */
@@ -421,7 +459,23 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:139
+   * @apilevel internal
+   */
+  public List<Func> Define_getFuncList(ASTNode _callerNode, ASTNode _childNode) {
+    int childIndex = this.getIndexOfChild(_callerNode);
+    return getFuncList();
+  }
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:139
+   * @apilevel internal
+   * @return {@code true} if this node has an equation for the inherited attribute getFuncList
+   */
+  protected boolean canDefine_getFuncList(ASTNode _callerNode, ASTNode _childNode) {
+    return true;
+  }
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
    * @apilevel internal
    */
   public IdDecl Define_lookup(ASTNode _callerNode, ASTNode _childNode, String name) {
@@ -429,7 +483,7 @@ protected boolean unknownDecl_visited = false;
     return unknownDecl();
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute lookup
    */
@@ -437,7 +491,7 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
    * @apilevel internal
    */
   public IdDecl Define_lookupFunc(ASTNode _callerNode, ASTNode _childNode, String name) {
@@ -460,7 +514,7 @@ protected boolean unknownDecl_visited = false;
         }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute lookupFunc
    */
@@ -468,12 +522,12 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
    * @apilevel internal
    */
   public Type Define_type(ASTNode _callerNode, ASTNode _childNode) {
     if (_callerNode == unknownDecl_value) {
-      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:3
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:3
       return unknownType();
     }
     else {
@@ -482,7 +536,7 @@ protected boolean unknownDecl_visited = false;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute type
    */
@@ -490,7 +544,7 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
    * @apilevel internal
    */
   public Type Define_expectedType(ASTNode _callerNode, ASTNode _childNode) {
@@ -498,7 +552,7 @@ protected boolean unknownDecl_visited = false;
     return unknownType();
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute expectedType
    */
@@ -506,7 +560,7 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:71
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:72
    * @apilevel internal
    */
   public UnknownType Define_unknownType(ASTNode _callerNode, ASTNode _childNode) {
@@ -514,7 +568,7 @@ protected boolean unknownDecl_visited = false;
     return unknownType();
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:71
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/TypeCheck.jrag:72
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute unknownType
    */
@@ -522,7 +576,7 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
    * @apilevel internal
    */
   public UnknownDecl Define_unknownDecl(ASTNode _callerNode, ASTNode _childNode) {
@@ -530,7 +584,7 @@ protected boolean unknownDecl_visited = false;
     return unknownDecl();
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute unknownDecl
    */
@@ -542,10 +596,10 @@ protected boolean Program_errors_visited = false;
   /**
    * @attribute coll
    * @aspect Errors
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:26
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:26
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.COLL)
-  @ASTNodeAnnotation.Source(aspect="Errors", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:26")
+  @ASTNodeAnnotation.Source(aspect="Errors", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Errors.jrag:26")
   public Set<ErrorMessage> errors() {
     ASTState state = state();
     if (Program_errors_computed) {

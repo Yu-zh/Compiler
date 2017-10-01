@@ -5,17 +5,29 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:9
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/lang.ast:9
  * @astdecl Return : Stmt ::= [Expr];
  * @production Return : {@link Stmt} ::= <span class="component">[{@link Expr}]</span>;
 
  */
 public class Return extends Stmt implements Cloneable {
   /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Interpreter.jrag:66
+   */
+  public void eval(ActivationRecord actrec) throws ReturnException{
+        if (hasExpr()) {
+            throw new ReturnException(getExpr().eval(actrec));
+        } else {
+            throw new ReturnVoidException();
+        }
+    }
+  /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:60
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:60
    */
   public void prettyPrint(PrintStream out, String ind) {
         out.print("return ");
@@ -23,7 +35,7 @@ public class Return extends Stmt implements Cloneable {
     }
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:64
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk5/A2-MinimalAST/src/jastadd/Visitor.jrag:64
    */
   public Object accept(Visitor visitor, Object data) {
     	return visitor.visit(this, data);
