@@ -140,26 +140,38 @@ aspect CodeGen {
     }
     public void Return.genCode(PrintStream out) {
         if (hasExpr()) {
-            getExpr().genCode(out);
+            getExpr().genEval(out);
         }
     }
     public void FuncCallStmt.genCode(PrintStream out) {
-        getCall().genCode(out);
+        getCall().genEval(out);
+    }
+    public void IfStmt.genCode(PrintStream out) {
+        getCond().genConditionalJump("else" + index(), out);
+        for (Stmt s : getBodyList()) {
+            s.genCode(out);
+            out.println("       jmp " + "fi" + index());
+        }
+        out.println("else" + index() + ":");
+        for (Stmt s : getElseList()) {
+            s.genCode(out);
+        }
+        out.println("fi" + index() + ":");
     }
 
-    public void Expr.genCode(PrintStream out) {
+    public void Expr.genEval(PrintStream out) {
         /* nothing */
     }
-    public void Numeral.genCode(PrintStream out) {
+    public void Numeral.genEval(PrintStream out) {
         out.println("       movq $" + getNUMERAL() + ", %rax");
     }
-    public void Call.genCode(PrintStream out) {
+    public void Call.genEval(PrintStream out) {
         // prepare stack for parameters
         int n = getNumExpr();
         if (n != 0) {
             out.println("       subq $" + Integer.toString(n*8) + ", %rsp");
             for (int i = 0; i < n; i++) {
-                getExpr(i).genCode(out);
+                getExpr(i).genEval(out);
                 out.println("       movq %rax, " + Integer.toString((i+1)*8) + "(%rsp)");
             }
             for (int i = n; i > 0; i--) {
@@ -171,8 +183,91 @@ aspect CodeGen {
             out.println("       addq $" + Integer.toString(n*8) + ", %rsp");
         }
     }
-    public void IdUse.genCode(PrintStream out) {
+    public void IdUse.genEval(PrintStream out) {
         out.println("       movq " + decl().addr() + ", %rax");
+    }
+    public void Add.genEval(PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       popq %rbx");
+        out.println("       addq %rbx, %rax");
+    }
+    public void Min.genEval(PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       movq %rax, %rbx");
+        out.println("       popq %rax");
+        out.println("       subq %rbx, %rax");
+    }
+    public void Mul.genEval(PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       popq %rbx");
+        out.println("       imulq %rbx, %rax");
+    }
+    public void Div.genEval(PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       movq %rax, %rbx");
+        out.println("       popq %rax");
+        out.println("       movq $0, %rdx");
+        out.println("       idivq %rbx");
+    }
+    public void Expr.genConditionalJump(String label, PrintStream out){
+        System.out.println("conditional jump");
+    }
+    // All the condition get neg
+    public void Ge.genConditionalJump(String label, PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       popq %rbx");
+        out.println("       cmp %rax, %rbx");
+        out.println("       jl " + label);
+    }
+    public void Le.genConditionalJump(String label, PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       popq %rbx");
+        out.println("       cmp %rax, %rbx");
+        out.println("       jg " + label);
+    }
+    public void Lt.genConditionalJump(String label, PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       popq %rbx");
+        out.println("       cmp %rax, %rbx");
+        out.println("       jge " + label);
+    }
+    public void Gt.genConditionalJump(String label, PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       popq %rbx");
+        out.println("       cmp %rax, %rbx");
+        out.println("       jle " + label);
+    }
+    public void Eq.genConditionalJump(String label, PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       popq %rbx");
+        out.println("       cmp %rax, %rbx");
+        out.println("       jne " + label);
+    }
+    public void Neq.genConditionalJump(String label, PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       popq %rbx");
+        out.println("       cmp %rax, %rbx");
+        out.println("       je " + label);
     }
 
     inh String IdDecl.addr();
