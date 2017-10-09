@@ -5,17 +5,159 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:1
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/lang.ast:1
  * @astdecl Program : ASTNode ::= Func*;
  * @production Program : {@link ASTNode} ::= <span class="component">{@link Func}*</span>;
 
  */
 public class Program extends ASTNode<ASTNode> implements Cloneable {
   /**
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:2
+   */
+  public void genCode(PrintStream out) {
+        out.println(".global _start");
+        out.println(".data");
+		out.println("ask_message: .ascii \"Please enter a number: \"");
+		out.println("ask_msg_len: .quad 23");
+		out.println("buf: .skip 1024");
+		out.println();
+		out.println(".text");
+
+        for (Func f : getFuncList()) {
+            if (!f.getIdDecl().getID().equals("main")) {
+                out.println(f.getIdDecl().getID() + ":");
+                f.genCode(out);
+                out.println("       ret");
+            } else {
+                out.println("_start:");
+                f.genCode(out);
+                out.println("       movq %rax, %rdi");
+                out.println("       movq $60, %rax");
+                out.println("       syscall"); // Done!
+            }
+        }
+
+        // Helper procedures for input/output:
+		out.println("# Procedure to read number from stdin.");
+		out.println("# C signature: long int read(void)");
+		out.println("read:");
+		out.println("        pushq %rbp");
+		out.println("        movq %rsp, %rbp");
+
+		out.println("        movq $1, %rdi");
+        out.println("        movq $ask_message, %rsi");
+        out.println("        movq $23, %rdx");
+        out.println("        movq $1, %rax");
+        out.println("        syscall");
+
+		out.println("        movq $0, %rdi");
+		out.println("        movq $buf, %rsi");
+		out.println("        movq $1024, %rdx");
+		out.println("        movq $0, %rax");
+		out.println("        syscall                 # sys_read(0, buf, 1024)");
+		out.println("        ### Convert string to integer (atoi).");
+		out.println("        ### RAX = string length (nchar)");
+		out.println("        ### RSI = string pointer");
+		out.println("        movq $0, %rdx           # sum <- 0");
+		out.println("        cmpq $0, %rax           # if (nchar > 0)");
+		out.println("        jle atoi_done           # nchar <= 0");
+		out.println("        movq %rsi, %rdi         # copy RSI to RDI for sign check later");
+		out.println("        movb (%rsi), %ch        # look at first char");
+		out.println("        cmp $0x2D, %ch");
+		out.println("        jne atoi_loop");
+		out.println("        incq %rsi               # skip sign char");
+		out.println("atoi_loop:");
+		out.println("        cmpq $0, %rax           # while (nchar > 0)");
+		out.println("        jle atoi_done           # leave loop if nchar <= 0");
+		out.println("        movzbq (%rsi), %rcx     # move byte, zero extend to quad-word");
+		out.println("        cmpq $0x30, %rcx        # test if < '0'");
+		out.println("        jl atoi_done            # character is not numeric");
+		out.println("        cmpq $0x39, %rcx        # test if > '9'");
+		out.println("        jg atoi_done            # character is not numeric");
+		out.println("        imulq $10, %rdx         # multiply sum by 10");
+		out.println("        subq $0x30, %rcx        # value of character");
+		out.println("        addq %rcx, %rdx         # add to sum");
+		out.println("        incq %rsi               # step to next char");
+		out.println("        decq %rax               # nchar--");
+		out.println("        jmp atoi_loop           # loop back");
+		out.println("atoi_done:");
+		out.println("        movq %rdx, %rax         # put result value in RAX");
+		out.println("        movb (%rdi), %ch        # check sign char");
+		out.println("        cmp $0x2D, %ch");
+		out.println("        jne read_end");
+		out.println("        negq %rax               # negate result due to sign char");
+		out.println("read_end:");
+		out.println("        popq %rbp");
+		out.println("        ret");
+		out.println();
+		out.println("# Procedure to print number to stdout.");
+		out.println("# C signature: void print(long int)");
+		out.println("print:");
+		out.println("        pushq %rbp");
+		out.println("        movq %rsp, %rbp");
+		out.println("        ### Convert integer to string (itoa).");
+		out.println("        movq 16(%rbp), %rax");
+		out.println("        movq $(buf+1023), %rsi  # RSI = write pointer (starts at end of buffer)");
+		out.println("        movb $0x0A, (%rsi)      # insert newline");
+		out.println("        movq $1, %rcx           # RCX = string length");
+		out.println("        cmpq $0, %rax");
+		out.println("        jge itoa_loop");
+		out.println("        negq %rax               # negate to make RAX positive");
+		out.println("itoa_loop:                      # do.. while (at least one iteration)");
+		out.println("        movq $10, %rdi");
+		out.println("        movq $0, %rdx");
+		out.println("        idivq %rdi              # divide RDX:RAX by 10");
+		out.println("        addb $0x30, %dl         # remainder + '0'");
+		out.println("        decq %rsi               # move string pointer");
+		out.println("        movb %dl, (%rsi)");
+		out.println("        incq %rcx               # increment string length");
+		out.println("        cmpq $0, %rax");
+		out.println("        jg itoa_loop            # produce more digits");
+		out.println("itoa_done:");
+		out.println("        movq 16(%rbp), %rax");
+		out.println("        cmpq $0, %rax");
+		out.println("        jge print_end");
+		out.println("        decq %rsi");
+		out.println("        incq %rcx");
+		out.println("        movb $0x2D, (%rsi)");
+		out.println("print_end:");
+		out.println("        movq $1, %rdi");
+		out.println("        movq %rcx, %rdx");
+		out.println("        movq $1, %rax");
+		out.println("        syscall");
+		out.println("        popq %rbp");
+		out.println("        ret");
+		out.println();
+		out.println("print_string:");
+		out.println("        pushq %rbp");
+		out.println("        movq %rsp, %rbp");
+		out.println("        movq $1, %rdi");
+		out.println("        movq 16(%rbp), %rsi");
+		out.println("        movq 24(%rbp), %rdx");
+		out.println("        movq $1, %rax");
+		out.println("        syscall");
+		out.println("        popq %rbp");
+		out.println("        ret");
+    }
+  /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:12
+   */
+  public void eval(){
+        try{
+            main().eval(new ActivationRecord());
+        } catch (ReturnException e) {
+
+        }
+    }
+  /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:40
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Visitor.jrag:40
    */
   public Object accept(Visitor visitor, Object data) {
 		return visitor.visit(this, data);
@@ -267,7 +409,7 @@ public class Program extends ASTNode<ASTNode> implements Cloneable {
   }
   /**
    * @aspect <NoAspect>
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:26
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Errors.jrag:26
    */
   /** @apilevel internal */
 protected java.util.Map<ASTNode, java.util.Set<ASTNode>> contributorMap_Program_errors = null;
@@ -280,6 +422,50 @@ protected java.util.Map<ASTNode, java.util.Set<ASTNode>> contributorMap_Program_
     }
   }
 
+/** @apilevel internal */
+protected boolean localIndex_visited = false;
+  /**
+   * @attribute syn
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:331
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
+  @ASTNodeAnnotation.Source(aspect="CodeGen", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:331")
+  public int localIndex() {
+    if (localIndex_visited) {
+      throw new RuntimeException("Circular definition of attribute ASTNode.localIndex().");
+    }
+    localIndex_visited = true;
+    int localIndex_value = 0;
+    localIndex_visited = false;
+    return localIndex_value;
+  }
+/** @apilevel internal */
+protected boolean main_visited = false;
+  /**
+   * @attribute syn
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:4
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
+  @ASTNodeAnnotation.Source(aspect="Interpreter", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:4")
+  public Func main() {
+    if (main_visited) {
+      throw new RuntimeException("Circular definition of attribute Program.main().");
+    }
+    main_visited = true;
+    try {
+            for (Func f : getFuncList()) {
+                if(f.getIdDecl().getID().equals("main")) {
+                    return f;
+                }
+            }
+            throw new RuntimeException("no main method found");
+        }
+    finally {
+      main_visited = false;
+    }
+  }
 /** @apilevel internal */
 protected boolean preFunc_visited = false;
   /** @apilevel internal */
@@ -298,10 +484,10 @@ protected boolean preFunc_visited = false;
   /**
    * @attribute syn
    * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:121
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:121
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN, isNTA=true)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:121")
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:121")
   public List<PreFunc> preFunc() {
     ASTState state = state();
     if (preFunc_computed) {
@@ -344,10 +530,10 @@ protected boolean unknownType_visited = false;
   /**
    * @attribute syn
    * @aspect UnknownType
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:69
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:70
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN, isNTA=true)
-  @ASTNodeAnnotation.Source(aspect="UnknownType", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:69")
+  @ASTNodeAnnotation.Source(aspect="UnknownType", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:70")
   public UnknownType unknownType() {
     ASTState state = state();
     if (unknownType_computed) {
@@ -383,10 +569,10 @@ protected boolean unknownDecl_visited = false;
   /**
    * @attribute syn
    * @aspect UnknownDecl
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:2
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:2
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN, isNTA=true)
-  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:2")
+  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:2")
   public UnknownDecl unknownDecl() {
     ASTState state = state();
     if (unknownDecl_computed) {
@@ -405,7 +591,7 @@ protected boolean unknownDecl_visited = false;
     return unknownDecl_value;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:28
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Errors.jrag:28
    * @apilevel internal
    */
   public Program Define_program(ASTNode _callerNode, ASTNode _childNode) {
@@ -413,7 +599,7 @@ protected boolean unknownDecl_visited = false;
     return this;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:28
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Errors.jrag:28
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute program
    */
@@ -421,7 +607,23 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:145
+   * @apilevel internal
+   */
+  public List<Func> Define_getFuncList(ASTNode _callerNode, ASTNode _childNode) {
+    int childIndex = this.getIndexOfChild(_callerNode);
+    return getFuncList();
+  }
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:145
+   * @apilevel internal
+   * @return {@code true} if this node has an equation for the inherited attribute getFuncList
+   */
+  protected boolean canDefine_getFuncList(ASTNode _callerNode, ASTNode _childNode) {
+    return true;
+  }
+  /**
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
    * @apilevel internal
    */
   public IdDecl Define_lookup(ASTNode _callerNode, ASTNode _childNode, String name) {
@@ -429,7 +631,7 @@ protected boolean unknownDecl_visited = false;
     return unknownDecl();
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute lookup
    */
@@ -437,7 +639,7 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
    * @apilevel internal
    */
   public IdDecl Define_lookupFunc(ASTNode _callerNode, ASTNode _childNode, String name) {
@@ -460,7 +662,7 @@ protected boolean unknownDecl_visited = false;
         }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:83
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute lookupFunc
    */
@@ -468,12 +670,12 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
    * @apilevel internal
    */
   public Type Define_type(ASTNode _callerNode, ASTNode _childNode) {
     if (_callerNode == unknownDecl_value) {
-      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:3
+      // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:3
       return unknownType();
     }
     else {
@@ -482,7 +684,7 @@ protected boolean unknownDecl_visited = false;
     }
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute type
    */
@@ -490,7 +692,7 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
    * @apilevel internal
    */
   public Type Define_expectedType(ASTNode _callerNode, ASTNode _childNode) {
@@ -498,7 +700,7 @@ protected boolean unknownDecl_visited = false;
     return unknownType();
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:25
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute expectedType
    */
@@ -506,7 +708,7 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:71
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:72
    * @apilevel internal
    */
   public UnknownType Define_unknownType(ASTNode _callerNode, ASTNode _childNode) {
@@ -514,7 +716,7 @@ protected boolean unknownDecl_visited = false;
     return unknownType();
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:71
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:72
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute unknownType
    */
@@ -522,7 +724,7 @@ protected boolean unknownDecl_visited = false;
     return true;
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
    * @apilevel internal
    */
   public UnknownDecl Define_unknownDecl(ASTNode _callerNode, ASTNode _childNode) {
@@ -530,7 +732,7 @@ protected boolean unknownDecl_visited = false;
     return unknownDecl();
   }
   /**
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:4
    * @apilevel internal
    * @return {@code true} if this node has an equation for the inherited attribute unknownDecl
    */
@@ -542,10 +744,10 @@ protected boolean Program_errors_visited = false;
   /**
    * @attribute coll
    * @aspect Errors
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:26
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Errors.jrag:26
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.COLL)
-  @ASTNodeAnnotation.Source(aspect="Errors", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:26")
+  @ASTNodeAnnotation.Source(aspect="Errors", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Errors.jrag:26")
   public Set<ErrorMessage> errors() {
     ASTState state = state();
     if (Program_errors_computed) {

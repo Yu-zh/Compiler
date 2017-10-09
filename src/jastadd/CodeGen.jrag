@@ -7,24 +7,18 @@ aspect CodeGen {
 		out.println("buf: .skip 1024");
 		out.println();
 		out.println(".text");
-        // call main function
-        for (Func f : getFuncList()) {
-            if (f.getIdDecl().getID().equals("main")) {
-                out.println("_start:");
-                for (Stmt s : f.getStmtList()) {
-                    s.genCode(out);
-                }
-            }
-        }
-        // call sys_exit
-        out.println("       movq %rax, %rdi");
-        out.println("       movq $60, %rax");
-        out.println("       syscall"); // Done!
 
         for (Func f : getFuncList()) {
             if (!f.getIdDecl().getID().equals("main")) {
                 out.println(f.getIdDecl().getID() + ":");
                 f.genCode(out);
+                out.println("       ret");
+            } else {
+                out.println("_start:");
+                f.genCode(out);
+                out.println("       movq %rax, %rdi");
+                out.println("       movq $60, %rax");
+                out.println("       syscall"); // Done!
             }
         }
 
@@ -34,6 +28,13 @@ aspect CodeGen {
 		out.println("read:");
 		out.println("        pushq %rbp");
 		out.println("        movq %rsp, %rbp");
+
+		out.println("        movq $1, %rdi");
+        out.println("        movq $ask_message, %rsi");
+        out.println("        movq $23, %rdx");
+        out.println("        movq $1, %rax");
+        out.println("        syscall");
+
 		out.println("        movq $0, %rdi");
 		out.println("        movq $buf, %rsi");
 		out.println("        movq $1024, %rdx");
@@ -127,12 +128,14 @@ aspect CodeGen {
         out.println("       pushq %rbp");
         out.println("       movq %rsp, %rbp");
         // func body
+        out.println("       subq $" + Integer.toString(8*(numLocals()-getNumPara()-1)) + ", %rsp");
         for (Stmt s : getStmtList()) {
             s.genCode(out);
         }
+        out.println(getIdDecl().getID() + "return:");
+        out.println("       addq $" + Integer.toString(8*(numLocals()-getNumPara()-1)) + ", %rsp");
         out.println("       movq %rbp, %rsp");
         out.println("       popq %rbp");
-        out.println("       ret");
     }
 
     public void Stmt.genCode(PrintStream out) {
@@ -142,7 +145,11 @@ aspect CodeGen {
         if (hasExpr()) {
             getExpr().genEval(out);
         }
+        out.println("       jmp " + funName() + "return");
     }
+    inh String Return.funName();
+    eq Func.getStmt().funName() = getIdDecl().getID();
+
     public void FuncCallStmt.genCode(PrintStream out) {
         getCall().genEval(out);
     }
@@ -150,32 +157,52 @@ aspect CodeGen {
         getCond().genConditionalJump("else" + index(), out);
         for (Stmt s : getBodyList()) {
             s.genCode(out);
-            out.println("       jmp " + "fi" + index());
         }
+        out.println("       jmp fi" + index());
         out.println("else" + index() + ":");
         for (Stmt s : getElseList()) {
             s.genCode(out);
         }
         out.println("fi" + index() + ":");
     }
+    public void WhileStmt.genCode(PrintStream out) {
+        out.println("loop" + index() + ":");
+        getCond().genConditionalJump("endloop" + index(), out);
+        for (Stmt s : getBodyList()) {
+            s.genCode(out);
+        }
+        out.println("       jmp loop" + index());
+        out.println("endloop" + index() + ":");
+    }
+    public void Assign.genCode(PrintStream out) {
+        getExpr().genEval(out);
+        out.println("       movq %rax, " + getIdUse().decl().addr());
+    }
+    public void VarDecl.genCode(PrintStream out) {
+        if (hasExpr()) {
+            getExpr().genEval(out);
+            out.println("       movq %rax, " + getIdDecl().addr());
+        }
+    }
 
     public void Expr.genEval(PrintStream out) {
-        /* nothing */
+        System.out.println("expr here");
     }
     public void Numeral.genEval(PrintStream out) {
         out.println("       movq $" + getNUMERAL() + ", %rax");
     }
     public void Call.genEval(PrintStream out) {
-        // prepare stack for parameters
+        // prepare stack for parameters -- no need
         int n = getNumExpr();
         if (n != 0) {
-            out.println("       subq $" + Integer.toString(n*8) + ", %rsp");
-            for (int i = 0; i < n; i++) {
+//            out.println("       subq $" + Integer.toString(n*8) + ", %rsp");
+//            for (int i = 0; i < n; i++) {
+//                getExpr(i).genEval(out);
+//                out.println("       movq %rax, " + Integer.toString((i+1)*8) + "(%rsp)");
+//            }
+            for (int i = n-1; i >= 0; i--) {
                 getExpr(i).genEval(out);
-                out.println("       movq %rax, " + Integer.toString((i+1)*8) + "(%rsp)");
-            }
-            for (int i = n; i > 0; i--) {
-                out.println("       pushq " + Integer.toString(8*n) + "(%rsp)");
+                out.println("       pushq %rax");
             }
         }
         out.println("       call " + getFun().getID());
@@ -216,6 +243,16 @@ aspect CodeGen {
         out.println("       popq %rax");
         out.println("       movq $0, %rdx");
         out.println("       idivq %rbx");
+    }
+    public void Mod.genEval(PrintStream out) {
+        getLeft().genEval(out);
+        out.println("       pushq %rax");
+        getRight().genEval(out);
+        out.println("       movq %rax, %rbx");
+        out.println("       popq %rax");
+        out.println("       movq $0, %rdx");
+        out.println("       idivq %rbx");
+        out.println("       movq %rdx, %rax");
     }
     public void Expr.genConditionalJump(String label, PrintStream out){
         System.out.println("conditional jump");
@@ -270,6 +307,34 @@ aspect CodeGen {
         out.println("       je " + label);
     }
 
-    inh String IdDecl.addr();
-    eq Func.getPara(int i).addr() = Integer.toString(8*(i+2)) + "(%rbp)";
+    inh int IdDecl.paraIndex();
+    // addr for para
+    inh boolean IdDecl.isPara();
+    eq Func.getStmt().isPara() = false;
+    eq Func.getPara().isPara() = true;
+    eq Func.getPara(int i).paraIndex() = i;
+	// addr for local var
+	inh int IdDecl.funIndex();
+	inh int IdDecl.numPara();
+	eq Func.getStmt().funIndex() = localIndex();
+	eq Func.getStmt().numPara() = getNumPara();
+
+	syn String IdDecl.addr() {
+	    if (isPara()) {
+	        return Integer.toString(8*(paraIndex()+2)) + "(%rbp)";
+	    }
+	    return "-" + Integer.toString(8*(localIndex()-funIndex()-numPara())) + "(%rbp)";
+	}
+
+	syn int ASTNode.numLocals() = lastNode().localIndex() - localIndex();
+
+	syn int ASTNode.localIndex() = prevNode().localIndex();
+	eq Program.localIndex() = 0;
+	eq IdDecl.localIndex() = prevNode().localIndex() + 1;
+
+	inh ASTNode ASTNode.prevNode();
+	eq ASTNode.getChild(int i).prevNode() = prevNode(i);
+	syn ASTNode ASTNode.lastNode() = prevNode(getNumChild());
+	syn ASTNode ASTNode.prevNode(int i) = i>0 ? getChild(i-1).lastNode() : this;
+
 }

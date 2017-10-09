@@ -5,10 +5,12 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.*;
 /**
  * @ast class
  * @aspect Errors
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:5
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Errors.jrag:5
  */
 public class ErrorMessage extends java.lang.Object implements Comparable<ErrorMessage> {
   

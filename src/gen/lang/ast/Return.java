@@ -5,17 +5,40 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:9
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/lang.ast:9
  * @astdecl Return : Stmt ::= [Expr];
  * @production Return : {@link Stmt} ::= <span class="component">[{@link Expr}]</span>;
 
  */
 public class Return extends Stmt implements Cloneable {
   /**
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:144
+   */
+  public void genCode(PrintStream out) {
+        if (hasExpr()) {
+            getExpr().genEval(out);
+        }
+        out.println("       jmp " + funName() + "return");
+    }
+  /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:66
+   */
+  public void eval(ActivationRecord actrec) throws ReturnException{
+        if (hasExpr()) {
+            throw new ReturnException(getExpr().eval(actrec));
+        } else {
+            throw new ReturnVoidException();
+        }
+    }
+  /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:60
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:60
    */
   public void prettyPrint(PrintStream out, String ind) {
         out.print("return ");
@@ -23,7 +46,7 @@ public class Return extends Stmt implements Cloneable {
     }
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:64
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Visitor.jrag:64
    */
   public Object accept(Visitor visitor, Object data) {
     	return visitor.visit(this, data);
@@ -206,4 +229,22 @@ public class Return extends Stmt implements Cloneable {
   public Opt<Expr> getExprOptNoTransform() {
     return (Opt<Expr>) getChildNoTransform(0);
   }
+  /**
+   * @attribute inh
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:150
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="CodeGen", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:150")
+  public String funName() {
+    if (funName_visited) {
+      throw new RuntimeException("Circular definition of attribute Return.funName().");
+    }
+    funName_visited = true;
+    String funName_value = getParent().Define_funName(this, null);
+    funName_visited = false;
+    return funName_value;
+  }
+/** @apilevel internal */
+protected boolean funName_visited = false;
 }

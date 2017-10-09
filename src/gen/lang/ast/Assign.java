@@ -5,17 +5,35 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:8
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/lang.ast:8
  * @astdecl Assign : Stmt ::= IdUse Expr;
  * @production Assign : {@link Stmt} ::= <span class="component">{@link IdUse}</span> <span class="component">{@link Expr}</span>;
 
  */
 public class Assign extends Stmt implements Cloneable {
   /**
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:177
+   */
+  public void genCode(PrintStream out) {
+        getExpr().genEval(out);
+        out.println("       movq %rax, " + getIdUse().decl().addr());
+    }
+  /**
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:36
+   */
+  public void eval(ActivationRecord actrec) {
+        int e = getExpr().eval(actrec);
+        actrec.setRecValue(getIdUse().decl().uniqueName(), e);
+    }
+  /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:54
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:54
    */
   public void prettyPrint(PrintStream out, String ind) {
         getIdUse().prettyPrint(out, ind);
@@ -24,7 +42,7 @@ public class Assign extends Stmt implements Cloneable {
     }
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:61
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Visitor.jrag:61
    */
   public Object accept(Visitor visitor, Object data) {
     	return visitor.visit(this, data);

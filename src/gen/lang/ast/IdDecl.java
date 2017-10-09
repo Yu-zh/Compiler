@@ -5,9 +5,11 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.HashSet;
+import java.util.*;
 /**
  * @ast node
- * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/lang.ast:39
+ * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/lang.ast:39
  * @astdecl IdDecl : ASTNode ::= <ID:String>;
  * @production IdDecl : {@link ASTNode} ::= <span class="component">&lt;ID:String&gt;</span>;
 
@@ -15,14 +17,14 @@ import java.util.TreeSet;
 public class IdDecl extends ASTNode<ASTNode> implements Cloneable {
   /**
    * @aspect PrettyPrint
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:210
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/PrettyPrint.jrag:210
    */
   public void prettyPrint(PrintStream out, String ind) {
 		out.print(getID());
 	}
   /**
    * @aspect Visitor
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Visitor.jrag:46
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Visitor.jrag:46
    */
   public Object accept(Visitor visitor, Object data) {
 		return visitor.visit(this, data);
@@ -197,14 +199,56 @@ public class IdDecl extends ASTNode<ASTNode> implements Cloneable {
     return tokenString_ID != null ? tokenString_ID : "";
   }
 /** @apilevel internal */
+protected boolean addr_visited = false;
+  /**
+   * @attribute syn
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:322
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
+  @ASTNodeAnnotation.Source(aspect="CodeGen", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:322")
+  public String addr() {
+    if (addr_visited) {
+      throw new RuntimeException("Circular definition of attribute IdDecl.addr().");
+    }
+    addr_visited = true;
+    try {
+    	    if (isPara()) {
+    	        return Integer.toString(8*(paraIndex()+2)) + "(%rbp)";
+    	    }
+    	    return "-" + Integer.toString(8*(localIndex()-funIndex()-numPara())) + "(%rbp)";
+    	}
+    finally {
+      addr_visited = false;
+    }
+  }
+/** @apilevel internal */
+protected boolean localIndex_visited = false;
+  /**
+   * @attribute syn
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:331
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
+  @ASTNodeAnnotation.Source(aspect="CodeGen", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:331")
+  public int localIndex() {
+    if (localIndex_visited) {
+      throw new RuntimeException("Circular definition of attribute ASTNode.localIndex().");
+    }
+    localIndex_visited = true;
+    int localIndex_value = prevNode().localIndex() + 1;
+    localIndex_visited = false;
+    return localIndex_value;
+  }
+/** @apilevel internal */
 protected boolean isMultiDeclared_visited = false;
   /**
    * @attribute syn
    * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:103
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:103
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:103")
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:103")
   public boolean isMultiDeclared() {
     if (isMultiDeclared_visited) {
       throw new RuntimeException("Circular definition of attribute IdDecl.isMultiDeclared().");
@@ -224,10 +268,10 @@ protected boolean isUnknown_visited = false;
   /**
    * @attribute syn
    * @aspect UnknownDecl
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:7
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:7
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.SYN)
-  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:7")
+  @ASTNodeAnnotation.Source(aspect="UnknownDecl", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/UnknownDecl.jrag:7")
   public boolean isUnknown() {
     if (isUnknown_visited) {
       throw new RuntimeException("Circular definition of attribute IdDecl.isUnknown().");
@@ -239,11 +283,101 @@ protected boolean isUnknown_visited = false;
   }
   /**
    * @attribute inh
-   * @aspect NameAnalysis
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:310
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101")
+  @ASTNodeAnnotation.Source(aspect="CodeGen", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:310")
+  public int paraIndex() {
+    if (paraIndex_visited) {
+      throw new RuntimeException("Circular definition of attribute IdDecl.paraIndex().");
+    }
+    paraIndex_visited = true;
+    int paraIndex_value = getParent().Define_paraIndex(this, null);
+    paraIndex_visited = false;
+    return paraIndex_value;
+  }
+/** @apilevel internal */
+protected boolean paraIndex_visited = false;
+  /**
+   * @attribute inh
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:312
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="CodeGen", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:312")
+  public boolean isPara() {
+    if (isPara_visited) {
+      throw new RuntimeException("Circular definition of attribute IdDecl.isPara().");
+    }
+    isPara_visited = true;
+    boolean isPara_value = getParent().Define_isPara(this, null);
+    isPara_visited = false;
+    return isPara_value;
+  }
+/** @apilevel internal */
+protected boolean isPara_visited = false;
+  /**
+   * @attribute inh
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:317
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="CodeGen", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:317")
+  public int funIndex() {
+    if (funIndex_visited) {
+      throw new RuntimeException("Circular definition of attribute IdDecl.funIndex().");
+    }
+    funIndex_visited = true;
+    int funIndex_value = getParent().Define_funIndex(this, null);
+    funIndex_visited = false;
+    return funIndex_value;
+  }
+/** @apilevel internal */
+protected boolean funIndex_visited = false;
+  /**
+   * @attribute inh
+   * @aspect CodeGen
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:318
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="CodeGen", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/CodeGen.jrag:318")
+  public int numPara() {
+    if (numPara_visited) {
+      throw new RuntimeException("Circular definition of attribute IdDecl.numPara().");
+    }
+    numPara_visited = true;
+    int numPara_value = getParent().Define_numPara(this, null);
+    numPara_visited = false;
+    return numPara_value;
+  }
+/** @apilevel internal */
+protected boolean numPara_visited = false;
+  /**
+   * @attribute inh
+   * @aspect Interpreter
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:207
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="Interpreter", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Interpreter.jrag:207")
+  public String uniqueName() {
+    if (uniqueName_visited) {
+      throw new RuntimeException("Circular definition of attribute IdDecl.uniqueName().");
+    }
+    uniqueName_visited = true;
+    String uniqueName_value = getParent().Define_uniqueName(this, null);
+    uniqueName_visited = false;
+    return uniqueName_value;
+  }
+/** @apilevel internal */
+protected boolean uniqueName_visited = false;
+  /**
+   * @attribute inh
+   * @aspect NameAnalysis
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101
+   */
+  @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
+  @ASTNodeAnnotation.Source(aspect="NameAnalysis", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/NameAnalysis.jrag:101")
   public IdDecl lookup(String name) {
     Object _parameters = name;
     if (lookup_String_visited == null) lookup_String_visited = new java.util.HashSet(4);
@@ -260,10 +394,10 @@ protected java.util.Set lookup_String_visited;
   /**
    * @attribute inh
    * @aspect ParaNum
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:2
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/ParaNum.jrag:2
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="ParaNum", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/ParaNum.jrag:2")
+  @ASTNodeAnnotation.Source(aspect="ParaNum", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/ParaNum.jrag:2")
   public int function() {
     if (function_visited) {
       throw new RuntimeException("Circular definition of attribute IdDecl.function().");
@@ -278,10 +412,10 @@ protected boolean function_visited = false;
   /**
    * @attribute inh
    * @aspect TypeCheck
-   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
+   * @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19
    */
   @ASTNodeAnnotation.Attribute(kind=ASTNodeAnnotation.Kind.INH)
-  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19")
+  @ASTNodeAnnotation.Source(aspect="TypeCheck", declaredAt="/Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/TypeCheck.jrag:19")
   public Type type() {
     if (type_visited) {
       throw new RuntimeException("Circular definition of attribute IdDecl.type().");
@@ -295,7 +429,7 @@ protected boolean function_visited = false;
 protected boolean type_visited = false;
   /** @apilevel internal */
   protected void collect_contributors_Program_errors(Program _root, java.util.Map<ASTNode, java.util.Set<ASTNode>> _map) {
-    // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk4/A2-MinimalAST/src/jastadd/Errors.jrag:38
+    // @declaredat /Users/zhangyu/Desktop/Workspace/Compilers@Lund/wk6/A2-MinimalAST/src/jastadd/Errors.jrag:38
     if (isMultiDeclared()) {
       {
         Program target = (Program) (program());
